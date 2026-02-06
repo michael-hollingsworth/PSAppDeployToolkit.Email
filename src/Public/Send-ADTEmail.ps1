@@ -110,7 +110,7 @@ function Send-Email {
 
                     try {
                         [System.Net.Mail.SmtpClient]$smtpClient = [System.Net.Mail.SmtpClient]::new($smtpClientProperties['SmtpServer'], $smtpClientProperties['Port'])
-                        $null = $smtpClientProperties.Remove('SmtpServer')
+                        $smtpClientProperties.Remove('SmtpServer')
                         $smtpClientProperties.Remove('Port')
 
                         foreach ($property in $smtpClientProperties.Keys) {
@@ -128,7 +128,7 @@ function Send-Email {
             } catch {
                 if ($adtConfig.Email.DeferOnFailureToSend) {
                     if ($adtSession.InstallPhase -ne 'Finalization') {
-                        $adtSession.DeferredEmails += $PSBoundParameters
+                        $adtSession.DeferredEmails.Add($PSBoundParameters)
                     }
                 } elseif ($adtConfig.Email.ExportOnFailureToSend) {
                     Export-ADTEmail @PSBoundParameters
