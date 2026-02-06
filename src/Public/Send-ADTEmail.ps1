@@ -69,24 +69,24 @@ function Send-Email {
                         throw (New-ADTErrorRecord @naerParams)
                     }
 
-                    [Hashtable]$boundParams = $PlogMessageoundParameters
+                    [Hashtable]$boundParams = $PSBoundParameters
                     $boundParams.Remove('Defer')
                     Write-ADTLogEntry -Message "Deferring email with properties: $($boundParams | Out-String -Width ([Int32]::MaxValue))"
                     (Get-ADTSession).DeferredMessages.Add($boundParams)
                     return
                 }
 
-                [Hashtable]$emailProperties = Get-ADTEmailParameters @PlogMessageoundParameters
+                [Hashtable]$emailProperties = Get-ADTEmailParameters @PSBoundParameters
 
                 $logMessage = [System.Text.StringBuilder]::new("Attempting to send email with properties: `r`nFrom: $($emailProperties.From) `r`nTo: $($emailPropeties.To -join ';')")
                 if ($emailPropertis.Containskey('Cc')) {
-                    $logMessage.Append(" `r`nCc: $($emailProperties.Cc -join ';')")
+                    $null = $logMessage.Append(" `r`nCc: $($emailProperties.Cc -join ';')")
                 }
                 if ($emailPropertis.Containskey('Bcc')) {
-                    $logMessage.Append(" `r`nBcc: $($emailProperties.Bcc -join ';')")
+                    $null = $logMessage.Append(" `r`nBcc: $($emailProperties.Bcc -join ';')")
                 }
-                $logMessage.Append(" `r`nSubject: $($emailProperties.Subject)")
-                $logMessage.Append(" `r`nBody: $($emailProperties.Body)")
+                $null = $logMessage.Append(" `r`nSubject: $($emailProperties.Subject)")
+                $null = $logMessage.Append(" `r`nBody: $($emailProperties.Body)")
 
                 Write-ADTLogEntry -Message $logMessage.ToString()
 
@@ -110,7 +110,7 @@ function Send-Email {
 
                     try {
                         [System.Net.Mail.SmtpClient]$smtpClient = [System.Net.Mail.SmtpClient]::new($smtpClientProperties['SmtpServer'], $smtpClientProperties['Port'])
-                        $smtpClientProperties.Remove('SmtpServer')
+                        $null = $smtpClientProperties.Remove('SmtpServer')
                         $smtpClientProperties.Remove('Port')
 
                         foreach ($property in $smtpClientProperties.Keys) {
