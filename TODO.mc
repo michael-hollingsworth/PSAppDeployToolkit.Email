@@ -1,1 +1,0 @@
-- [ ] Update `Confirm-ADTEmailConfig` to support the new config format.
