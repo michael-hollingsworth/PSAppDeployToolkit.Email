@@ -4,7 +4,7 @@
 .EXAMPLE
     
 #>
-function Initialize-DeferredEmailsProperty {
+function Initialize-ADTDeferredEmailsProperty {
     [CmdletBinding()]
     param (
     )
@@ -17,7 +17,7 @@ function Initialize-DeferredEmailsProperty {
     } process {
         try {
             try {
-                if ($adtSession.PSObject.Properties.ContainsKey('DeferredEmails')) {
+                if ($adtSession.PSObject.Properties.Name.Contains('DeferredEmails')) {
                     return
                 }
 

@@ -4,7 +4,7 @@
 .EXAMPLE
     
 #>
-function Initialize-AdditionalLogFilesProperty {
+function Initialize-ADTAdditionalLogFilesProperty {
     [CmdletBinding()]
     param (
     )
@@ -17,7 +17,7 @@ function Initialize-AdditionalLogFilesProperty {
     } process {
         try {
             try {
-                if ($adtSession.PSObject.Properties.ContainsKey('AdditionalLogFiles')) {
+                if ($adtSession.PSObject.Properties.Name.Contains('AdditionalLogFiles')) {
                     return
                 }
 
