@@ -56,7 +56,7 @@ function Send-Email {
         try {
             try {
                 if ($Defer) {
-                    if (-not (Test-ADTSession)) {
+                    if (-not (Test-ADTSessionActive)) {
                         #TODO:
                         $naerParams = @{
                             Exception = [System.InvalidOperationException]::new("An ADT Session must be active to defer emails.")

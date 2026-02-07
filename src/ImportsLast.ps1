@@ -9,7 +9,7 @@ if (Test-ADTModuleInitialized) {
 }
 
 # Initialize session properties if a session already exists
-if (Test-ADTSession) {
+if (Test-ADTSessionActive) {
     $adtSession = Get-ADTSession
 
     if (-not $adtSession.PSObject.Properties.ContainsKey('DeferredEmails')) {
