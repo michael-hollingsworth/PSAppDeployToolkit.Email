@@ -102,12 +102,18 @@ function Send-Email {
                     $emailProperties.Remove('From')
                     $emailProperties.Remove('To')
 
-                    foreach ($path in $emailProperties.Attachments) {
-                        $message.Attachments.Add($path)
+                    # Properties that can only be modified using the Add() method
+                    foreach ($property in @('Attachments', 'Bcc', 'Cc')) {
+                        if ($emailProperties.ContainsKey($property)) {
+                            foreach ($value in $emailProperties[$property]) {
+                                $message.$property.Add($value)
+                            }
+
+                            $emailProperties.Remove($property)
+                        }
                     }
 
-                    $emailProperties.Remove('Attachments')
-
+                    # All remaining properties
                     foreach ($property in $emailProperties.Keys) {
                         $message.$property = $emailProperties[$property]
                     }
