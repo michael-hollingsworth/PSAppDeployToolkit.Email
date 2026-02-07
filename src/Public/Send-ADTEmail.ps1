@@ -31,9 +31,6 @@ function Send-Email {
         [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Priority')]
         [System.Net.Mail.MailPriority]$Priority,
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = 'MailMessage')]
-        [ValidateNotNullOrEmpty()]
-        [System.Net.Mail.MailMessage]$MailMessage,
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [String]$SmtpServer,

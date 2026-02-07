@@ -27,8 +27,6 @@ function Get-ADTEmailParameters {
         [Switch]$IncludeLogs,
         [Parameter()]
         [System.Net.Mail.MailPriority]$Priority,
-        [ValidateNotNullOrEmpty()]
-        [System.Net.Mail.MailMessage]$MailMessage,
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [String]$SmtpServer,
