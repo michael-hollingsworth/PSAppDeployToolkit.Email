@@ -40,7 +40,7 @@ function Send-ADTDeferredEmails {
 
                 Write-ADTLogEntry -Message "Failed to send [$($adtSession.DeferredEmails.Count)] emails. Exporting emails to [$($adtConfig.Email.ExportPath)]" -Severity 3
 
-                foreach ($email in $deferredEmails) {
+                foreach ($email in $adtSession.DeferredEmails) {
                     Export-ADTEmail @email
                 }
             } catch {
