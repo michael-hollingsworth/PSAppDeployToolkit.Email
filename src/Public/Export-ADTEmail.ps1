@@ -62,7 +62,7 @@ function Export-ADTEmail {
     } process {
         [Hashtable]$email = Resolve-ADTEmailParameters @PSBoundParameters
 
-        Write-ADTLogEntry -Message "Exporting email with properties: `r`n $($email | Format-List | Out-String -Width ([Int32]::MaxValue))"
+        Write-ADTLogEntry -Message "Exporting email with properties: $(Resolve-ADTEmailLogMessage @email)"
 
         $deferredEmails += $email
     } end {

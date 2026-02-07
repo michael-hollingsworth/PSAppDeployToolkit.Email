@@ -68,32 +68,16 @@ function Send-Email {
 
                     [Hashtable]$boundParams = $PSBoundParameters
                     $boundParams.Remove('Defer')
-                    [System.Text.StringBuilder]$logMessage = [System.Text.StringBuilder]::new('Deferring email with properties:')
-                    foreach ($property in @('From', 'To', 'Bcc', 'Cc', 'Subject', 'Body', 'Attachments')) {
-                        if ($boundParams.ContainsKey($property)) {
-                            $null = $logMessage.Append(" `r`n${property}: $($boundParams[$property] -join ';')")
-                        }
-                    }
-
-                    Write-ADTLogEntry -Message $logMessage.ToString()
+                    Write-ADTLogEntry -Message "Deferring email with properties: $(Resolve-ADTEmailLogMessage @boundparams)"
                     (Get-ADTSession).DeferredEmails.Add($boundParams)
                     return
                 }
 
                 [Hashtable]$emailProperties = Resolve-ADTEmailParameters @PSBoundParameters
-
-                $logMessage = [System.Text.StringBuilder]::new("Attempting to send email with properties: `r`nFrom: $($emailProperties.From) `r`nTo: $($emailPropeties.To -join ';')")
-                foreach ($property in @('Bcc', 'Cc', 'Subject', 'Body', 'Attachments')) {
-                    if ($boundParams.ContainsKey($property)) {
-                        $null = $logMessage.Append(" `r`n${property}: $($boundParams[$property] -join ';')")
-                    }
-                }
-
-                Write-ADTLogEntry -Message $logMessage.ToString()
-
                 [Hashtable]$smtpClientProperties = $emailProperties.SmtpClient
                 $emailProperties.Remove('SmtpClient')
 
+                Write-ADTLogEntry -Message "Attempting to send email with properties: $(Resolve-ADTEmailLogMessage @emailProperties)"
                 try {
                     $message = [System.Net.Mail.MailMessage]::new($emailProperties.From, $emailProperties.To)
                     $emailProperties.Remove('From')
