@@ -71,7 +71,14 @@ function Send-Email {
 
                     [Hashtable]$boundParams = $PSBoundParameters
                     $boundParams.Remove('Defer')
-                    Write-ADTLogEntry -Message "Deferring email with properties: $($boundParams | Out-String -Width ([Int32]::MaxValue))"
+                    [System.Text.StringBuilder]$logMessage = [System.Text.StringBuilder]::new('Deferring email with properties:')
+                    foreach ($property in @('From', 'To', 'Bcc', 'Cc', 'Subject', 'Body', 'Attachments')) {
+                        if ($boundParams.ContainsKey($property)) {
+                            $null = $logMessage.Append(" `r`n${property}: $($boundParams[$property] -join ';')")
+                        }
+                    }
+
+                    Write-ADTLogEntry -Message $logMessage.ToString()
                     (Get-ADTSession).DeferredMessages.Add($boundParams)
                     return
                 }
@@ -79,14 +86,11 @@ function Send-Email {
                 [Hashtable]$emailProperties = Get-ADTEmailParameters @PSBoundParameters
 
                 $logMessage = [System.Text.StringBuilder]::new("Attempting to send email with properties: `r`nFrom: $($emailProperties.From) `r`nTo: $($emailPropeties.To -join ';')")
-                if ($emailPropertis.Containskey('Cc')) {
-                    $null = $logMessage.Append(" `r`nCc: $($emailProperties.Cc -join ';')")
+                foreach ($property in @('Bcc', 'Cc', 'Subject', 'Body', 'Attachments')) {
+                    if ($boundParams.ContainsKey($property)) {
+                        $null = $logMessage.Append(" `r`n${property}: $($boundParams[$property] -join ';')")
+                    }
                 }
-                if ($emailPropertis.Containskey('Bcc')) {
-                    $null = $logMessage.Append(" `r`nBcc: $($emailProperties.Bcc -join ';')")
-                }
-                $null = $logMessage.Append(" `r`nSubject: $($emailProperties.Subject)")
-                $null = $logMessage.Append(" `r`nBody: $($emailProperties.Body)")
 
                 Write-ADTLogEntry -Message $logMessage.ToString()
 
