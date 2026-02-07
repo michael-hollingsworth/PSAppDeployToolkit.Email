@@ -79,7 +79,7 @@ function Send-Email {
                     }
 
                     Write-ADTLogEntry -Message $logMessage.ToString()
-                    (Get-ADTSession).DeferredMessages.Add($boundParams)
+                    (Get-ADTSession).DeferredEmails.Add($boundParams)
                     return
                 }
 
