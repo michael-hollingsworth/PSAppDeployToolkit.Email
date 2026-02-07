@@ -1,4 +1,4 @@
-function Get-ADTEmailParameters {
+function Resolve-ADTEmailParameters {
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param (

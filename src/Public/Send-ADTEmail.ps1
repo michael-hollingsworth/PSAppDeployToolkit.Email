@@ -80,7 +80,7 @@ function Send-Email {
                     return
                 }
 
-                [Hashtable]$emailProperties = Get-ADTEmailParameters @PSBoundParameters
+                [Hashtable]$emailProperties = Resolve-ADTEmailParameters @PSBoundParameters
 
                 $logMessage = [System.Text.StringBuilder]::new("Attempting to send email with properties: `r`nFrom: $($emailProperties.From) `r`nTo: $($emailPropeties.To -join ';')")
                 foreach ($property in @('Bcc', 'Cc', 'Subject', 'Body', 'Attachments')) {
