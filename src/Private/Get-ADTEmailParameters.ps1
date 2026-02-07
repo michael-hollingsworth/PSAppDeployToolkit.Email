@@ -18,7 +18,6 @@ function Get-ADTEmailParameters {
         [ValidateNotNullOrEmpty()]
         [String]$Subject,
         [Parameter()]
-        [Alias('Message')]
         [String]$Body,
         [Parameter()]
         [ValidateNotNullOrEmpty()]
