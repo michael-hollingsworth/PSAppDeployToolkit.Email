@@ -2,19 +2,12 @@ function Resolve-ADTEmailLogMessage {
     [CmdletBinding()]
     [OutputType([String])]
     param (
-        [ValidateNotNullOrEmpty()]
         [String[]]$Attachments,
-        [ValidateNotNullOrEmpty()]
         [String[]]$Bcc,
-        [ValidateNotNullOrEmpty()]
         [String]$Body,
-        [ValidateNotNullOrEmpty()]
         [String[]]$Cc,
-        [ValidateNotNullOrEmpty()]
         [String]$From,
-        [ValidateNotNullOrEmpty()]
         [String]$Subject,
-        [ValidateNotNullOrEmpty()]
         [String[]]$To,
         # Somewhere for the remaining arguments that we don't care about to go
         [Parameter(ValueFromRemainingArguments = $true)]
