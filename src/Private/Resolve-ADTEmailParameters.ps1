@@ -64,7 +64,7 @@ function Resolve-ADTEmailParameters {
             if ($PSBoundParameters.ContainsKey($property)) {
                 $emailProperties.Add($property, $PSBoundParameters[$property])
             } elseif ($adtConfig.Email.Defaults.ContainsKey($property)) {
-                $emailProperties.Add($property, $adtConfig.Email[$property])
+                $emailProperties.Add($property, $adtConfig.Email.Defaults[$property])
             }
         }
 
@@ -80,7 +80,7 @@ function Resolve-ADTEmailParameters {
             if ($PSBoundParameters.ContainsKey($property)) {
                 $smtpClientProperties.Add($property, $PSBoundParameters[$property])
             } elseif ($adtConfig.Email.Defaults.SmtpClient.ContainsKey($property)) {
-                $smtpClientProperties.Add($property, $adtConfig.Email[$property])
+                $smtpClientProperties.Add($property, $adtConfig.Email.Defaults.SmtpClient[$property])
             }
         }
 

@@ -1,4 +1,4 @@
-function Send-Email {
+function Send-ADTEmail {
     [CmdletBinding()]
     param (
         [Parameter()]
