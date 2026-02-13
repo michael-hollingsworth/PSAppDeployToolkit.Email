@@ -52,6 +52,9 @@ function Resolve-ADTEmailParameters {
             $emailProperties.Add('Body', $Body)
         }
 
+        [Boolean]$configHasDefaults = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults')
+        [Boolean]$configHasSmtpDefaults = $configHasDefaults -and $adtConfig.Email.Defaults.ContainsKey('SmtpClient')
+
         [String[]]$adtEmailConfigProperties = @(
             'Bcc',
             'Cc',
@@ -63,7 +66,7 @@ function Resolve-ADTEmailParameters {
         foreach ($property in $adtEmailConfigProperties) {
             if ($PSBoundParameters.ContainsKey($property)) {
                 $emailProperties.Add($property, $PSBoundParameters[$property])
-            } elseif ($adtConfig.Email.Defaults.ContainsKey($property)) {
+            } elseif ($configHasDefaults -and $adtConfig.Email.Defaults.ContainsKey($property)) {
                 $emailProperties.Add($property, $adtConfig.Email.Defaults[$property])
             }
         }
@@ -79,7 +82,7 @@ function Resolve-ADTEmailParameters {
         foreach ($property in $adtsmtpClientProperties) {
             if ($PSBoundParameters.ContainsKey($property)) {
                 $smtpClientProperties.Add($property, $PSBoundParameters[$property])
-            } elseif ($adtConfig.Email.Defaults.SmtpClient.ContainsKey($property)) {
+            } elseif ($configHasSmtpDefaults -and $adtConfig.Email.Defaults.SmtpClient.ContainsKey($property)) {
                 $smtpClientProperties.Add($property, $adtConfig.Email.Defaults.SmtpClient[$property])
             }
         }
