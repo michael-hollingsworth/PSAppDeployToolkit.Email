@@ -78,8 +78,8 @@ function Send-ADTEmail {
                 $emailProperties.Remove('SmtpClient')
 
                 Write-ADTLogEntry -Message "Attempting to send email with properties: $(Resolve-ADTEmailLogMessage @emailProperties)"
+                $message = [System.Net.Mail.MailMessage]::new($emailProperties.From, $emailProperties.To)
                 try {
-                    $message = [System.Net.Mail.MailMessage]::new($emailProperties.From, $emailProperties.To)
                     $emailProperties.Remove('From')
                     $emailProperties.Remove('To')
 
@@ -99,8 +99,8 @@ function Send-ADTEmail {
                         $message.$property = $emailProperties[$property]
                     }
 
+                    [System.Net.Mail.SmtpClient]$smtpClient = [System.Net.Mail.SmtpClient]::new($smtpClientProperties['SmtpServer'], $smtpClientProperties['Port'])
                     try {
-                        [System.Net.Mail.SmtpClient]$smtpClient = [System.Net.Mail.SmtpClient]::new($smtpClientProperties['SmtpServer'], $smtpClientProperties['Port'])
                         $smtpClientProperties.Remove('SmtpServer')
                         $smtpClientProperties.Remove('Port')
 
