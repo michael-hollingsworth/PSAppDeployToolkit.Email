@@ -87,6 +87,10 @@ function Resolve-ADTEmailParameters {
             }
         }
 
+        if ((-not $smtpClientProperties.ContainsKey('SmtpServer')) -and (-not [String]::IsNullOrWhiteSpace($PSEmailServer))) {
+            $smtpClientProperties.Add('SmtpServer', $PSEmailServer)
+        }
+
         if ($IncludeLogs) {
             if ((-not [String]::IsNullOrWhiteSpace($adtSession.LogPath)) -and (-not [String]::IsNullOrWhiteSpace($adtSession.LogName)) -and ($logPath = Join-Path -Path $adtSession.LogPath -ChildPath $adtSession.LogName)) {
                 $Attachment += $logPath
