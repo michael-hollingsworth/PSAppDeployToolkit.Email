@@ -21,8 +21,14 @@ try {
     # Ensure module operates under the strictest of conditions.
     Set-StrictMode -Version 3
 
+    # Store build information pertaining to this module's state.
+    New-Variable -Name Module -Option Constant -Force -Value ([ordered]@{
+        Manifest = Import-LocalizedData -BaseDirectory $PSScriptRoot -FileName 'PSAppDeployToolkit.Email.psd1'
+        Compiled = $MyInvocation.MyCommand.Name.Equals('PSAppDeployToolkit.Email.psm1')
+    }).AsReadOnly()
+
     # Remove any previous functions that may have been defined.
-    if ($MyInvocation.MyCommand.Name.Equals('PSAppDeployToolkit.Email.psm1')) {
+    if ($Module.Compiled) {
         New-Variable -Name FunctionPaths -Option Constant -Value ($MyInvocation.MyCommand.ScriptBlock.Ast.EndBlock.Statements | & { process { if ($_ -is [System.Management.Automation.Language.FunctionDefinitionAst]) { return "Microsoft.PowerShell.Core\Function::$($_.Name)" } } })
         Remove-Item -LiteralPath $FunctionPaths -Force -ErrorAction Ignore
     }
