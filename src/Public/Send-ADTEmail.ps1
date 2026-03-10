@@ -115,7 +115,7 @@ function Send-ADTEmail {
                     $message.Dispose()
                 }
             } catch {
-                Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
+                Initialize-ADTModuleIfUnitialized -Cmdlet $PSCmdlet
                 $adtConfig = Get-ADTConfig
                 if ($adtConfig.Email.DeferOnFailureToSend) {
                     if ($adtSession.InstallPhase -ne 'Finalization') {
