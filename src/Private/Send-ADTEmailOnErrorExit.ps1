@@ -29,7 +29,7 @@ function Send-ADTEmailOnErrorExit {
                     return
                 }
 
-                if ($exitCode -in $adtSession.ScriptSuccessExitCodes) {
+                if ($adtSession.PSObject.Properties.Name.Contains('ScriptSuccessExitCodes') -and ($exitCode -in $adtSession.ScriptSuccessExitCodes)) {
                     return
                 }
 
