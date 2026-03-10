@@ -7,12 +7,17 @@ function Send-ADTEmailOnErrorExit {
         Initialize-ADTFunction -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
 
         $adtSession = Get-ADTSession
+        $adtConfig = Get-ADTConfig
     } process {
         try {
             try {
                 [Int32]$exitCode = $adtSession.GetExitCode()
 
                 if ($exitCode -eq 0) {
+                    return
+                }
+
+                if (($exitCode -eq $adtConfig.UI.DefaultExitCode) -or ($exitCode -eq $adtConfig.UI.DeferExitCode)) {
                     return
                 }
 
