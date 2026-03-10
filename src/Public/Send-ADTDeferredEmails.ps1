@@ -19,7 +19,7 @@ function Send-ADTDeferredEmails {
 
                 Write-ADTLogEntry -Message "Sending [$($adtSession.DeferredEmails.Count)] deferred email(s)."
 
-                [Hashtable]$emailsToSend = $adtSession.DeferredEmails
+                [Hashtable[]]$emailsToSend = $adtSession.DeferredEmails
                 foreach ($deferredEmail in $emailsToSend) {
                     try {
                         Send-ADTEmail @deferredEmail
