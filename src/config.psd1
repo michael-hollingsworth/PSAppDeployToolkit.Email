@@ -41,7 +41,10 @@
         ExportOnFailureToSend = $true
 
         # Where to export emails that failed to send
-        ExportPath = '$env:Temp'
+        ExportPath = '$envTemp'
+
+        # Same as TempPath but used when ExportPath is False.
+        ExportPathNoAdminRights = '$envTemp'
 
         # Whether or not to send emails that have been exported by scripts that have run in the past
         SendExportedEmails = $true

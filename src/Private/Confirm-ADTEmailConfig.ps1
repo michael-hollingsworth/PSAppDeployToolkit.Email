@@ -36,6 +36,13 @@ function Confirm-ADTEmailConfig {
                         SendExportedEmails = [Boolean]
                     }
                 }
+
+                # Change path to user accessible one if the caller isn't an admin
+                if (-not (Get-ADTEnvironmentTable).IsAdmin) {
+                    if (-not [String]::IsNullOrWhiteSpace($adtConfig.Email.ExportPathNoAdminRights)) {
+                        $adtConfig.Email.ExportPath = $adtConfig.Email.ExportPathNoAdminRights
+                    }
+                }
             } catch {
                 Write-Error -ErrorRecord $_
             }
