@@ -19,11 +19,11 @@ try {
     if (Test-ADTSessionActive) {
         $adtSession = Get-ADTSession
     
-        if (-not $adtSession.PSObject.Properties.ContainsKey('DeferredEmails')) {
+        if (-not $adtSession.PSObject.Properties.Name.Contains('DeferredEmails')) {
             Initialize-ADTDeferredEmailsProperty
         }
     
-        if (-not $adtSession.PSObject.Properties.ContainsKey('AdditionalLogFiles')) {
+        if (-not $adtSession.PSObject.Properties.Name.Contains('AdditionalLogFiles')) {
             Initialize-ADTAdditionalLogFilesProperty
         }
     }
