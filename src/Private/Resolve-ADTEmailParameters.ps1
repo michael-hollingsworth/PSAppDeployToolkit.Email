@@ -41,9 +41,7 @@ function Resolve-ADTEmailParameters {
     )
 
     begin {
-        if (Test-ADTSessionActive) {
-            $adtSession = Get-ADTSession
-        }
+        $adtSession = Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet -PassThruActiveSession
         $adtConfig = Get-ADTConfig
     } process {
         [Hashtable]$emailProperties = @{ Subject = $Subject }

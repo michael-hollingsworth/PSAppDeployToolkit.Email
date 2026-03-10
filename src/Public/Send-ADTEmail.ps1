@@ -50,8 +50,6 @@ function Send-ADTEmail {
 
     begin {
         Initialize-ADTFunction -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
-
-        $adtConfig = Get-ADTConfig
     } process {
         try {
             try {
@@ -117,6 +115,8 @@ function Send-ADTEmail {
                     $message.Dispose()
                 }
             } catch {
+                Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
+                $adtConfig = Get-ADTConfig
                 if ($adtConfig.Email.DeferOnFailureToSend) {
                     if ($adtSession.InstallPhase -ne 'Finalization') {
                         $adtSession.DeferredEmails.Add($PSBoundParameters)
