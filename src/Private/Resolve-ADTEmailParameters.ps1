@@ -3,31 +3,31 @@ function Resolve-ADTEmailParameters {
     [OutputType([Hashtable])]
     param (
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress]$From,
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$To,
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$Cc,
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$Bcc,
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [String]$Subject,
         [Parameter()]
         [String]$Body,
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [String[]]$Attachment,
         [Parameter()]
         [Switch]$IncludeLogs,
         [Parameter()]
         [System.Net.Mail.MailPriority]$Priority,
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [String]$SmtpServer,
         [Parameter()]
         [ValidateRange(1, [Int32]::MaxValue)]

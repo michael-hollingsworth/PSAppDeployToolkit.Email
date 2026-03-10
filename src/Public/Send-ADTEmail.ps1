@@ -3,28 +3,28 @@ function Send-ADTEmail {
     param (
         [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.From')]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress]$From,
         [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.To')]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$To,
         [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Cc')]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$Cc,
         [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Bcc')]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$Bcc,
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [String]$Subject,
         [Parameter()]
         [Alias('Message')]
         [String]$Body,
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [String[]]$Attachment,
         [Parameter()]
         [Switch]$IncludeLogs,
@@ -32,7 +32,7 @@ function Send-ADTEmail {
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Priority')]
         [System.Net.Mail.MailPriority]$Priority,
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [String]$SmtpServer,
         [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.SmtpClient.Port')]
