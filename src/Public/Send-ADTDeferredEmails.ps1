@@ -25,7 +25,7 @@ function Send-ADTDeferredEmails {
                         Send-ADTEmail @deferredEmail
                         $adtSession.DeferredEmails.Remove($deferredEmail)
                     } catch {
-                        #TODO: Make sure the error is logged but don't exit
+                        Write-ADTLogEntry -Message "Failed to send defered email: `r`n$(Resolve-ADTErrorRecord -ErrorRecord $_)"
                     }
                 }
 
