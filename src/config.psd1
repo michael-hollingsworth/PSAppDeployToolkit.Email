@@ -41,10 +41,10 @@
         ExportOnFailureToSend = $true
 
         # Where to export emails that failed to send
-        ExportPath = '$envTemp'
+        ExportPath = '$envTemp\DeferedEmails.xml'
 
         # Same as TempPath but used when ExportPath is False.
-        ExportPathNoAdminRights = '$envTemp'
+        ExportPathNoAdminRights = '$envTemp\DeferedEmails.xml'
 
         # Whether or not to send emails that have been exported by scripts that have run in the past
         SendExportedEmails = $true

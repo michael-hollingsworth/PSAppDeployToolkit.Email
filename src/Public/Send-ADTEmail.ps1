@@ -117,11 +117,12 @@ function Send-ADTEmail {
             } catch {
                 Initialize-ADTModuleIfUnitialized -Cmdlet $PSCmdlet
                 $adtConfig = Get-ADTConfig
-                if ($adtConfig.Email.DeferOnFailureToSend) {
+                if (-not $adtConfig.ContainsKey('Email')) {
+                } elseif ($adtConfig.Email.ContainsKey('DeferOnFailureToSend') -and $adtConfig.Email.DeferOnFailureToSend) {
                     if ($adtSession.InstallPhase -ne 'Finalization') {
                         $adtSession.DeferredEmails.Add($PSBoundParameters)
                     }
-                } elseif ($adtConfig.Email.ExportOnFailureToSend) {
+                } elseif ($adtConfig.Email.ContainsKey('ExportOnFailureToSend') -and $adtConfig.Email.ExportOnFailureToSend) {
                     Export-ADTEmail @PSBoundParameters
                 }
 
