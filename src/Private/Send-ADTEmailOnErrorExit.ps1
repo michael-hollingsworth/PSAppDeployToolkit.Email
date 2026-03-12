@@ -42,7 +42,7 @@ function Send-ADTEmailOnErrorExit {
 
                 Write-ADTLogEntry -Message "An unhandled, terminating error occurred resulting in exit code [$exitCode]." -Severity Error
 
-                Send-ADTEmail -Subject "An unexpected error occurred while deploying [$($adtSession.InstallTitle)] on [$envComputerName]" -Body "Exit code: `r`n$exitCode$(if (($null -ne $Error) -and $Error.Count) { " `r`n$(Resolve-ADTErrorRecord -ErrorRecord $Error[0])" })" -IncludeLogs
+                Send-ADTEmail -Subject "An unexpected error occurred while deploying [$($adtSession.InstallTitle)] on [$((Get-ADTEnvironmentTable).envComputerName)]" -Body "Exit code: `r`n$exitCode$(if (($null -ne $Error) -and $Error.Count) { " `r`n$(Resolve-ADTErrorRecord -ErrorRecord $Error[0])" })" -IncludeLogs
             } catch {
                 Write-Error -ErrorRecord $_
             }
