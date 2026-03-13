@@ -1,5 +1,6 @@
 function Export-ADTEmail {
     [CmdletBinding()]
+    [OutputType([Hashtable])]
     param (
         [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.From')]
@@ -71,7 +72,10 @@ function Export-ADTEmail {
             }
             return !!$_
         })]
-        [String]$ExportPath
+        [String]$ExportPath,
+
+        [Parameter()]
+        [Switch]$PassThru
     )
 
     begin {
@@ -105,6 +109,8 @@ function Export-ADTEmail {
         } else {
             [System.Collections.Generic.List[Hashtable]]::new()
         }
+
+        [Int32]$startIndex = $deferredEmails.Count
     } process {
         [Hashtable]$boundParams = $PSBoundParameters
         if ($boundParams.ContainsKey('ExportPath')) {
@@ -119,6 +125,10 @@ function Export-ADTEmail {
         try {
             try {
                 Export-CliXml -InputObject $deferredEmails -LiteralPath $ExportPath -Force
+
+                if ($PassThru) {
+                    return $deferredEmails[$startIndex..($deferredEmails.Count -1)]
+                }
             } catch {
                 Write-Error -ErrorRecord $_
             }
