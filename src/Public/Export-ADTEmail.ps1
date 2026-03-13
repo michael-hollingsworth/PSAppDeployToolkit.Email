@@ -105,13 +105,13 @@ function Export-ADTEmail {
         }
 
         # Combine the already exported emails with the emails we are about to export.
-        [System.Collections.Generic.List[Hashtable]]$deferredEmails = if (Test-Path -LiteralPath $ExportPath -PathType Leaf) {
+        [System.Collections.Generic.List[Hashtable]]$exportedEmails = if (Test-Path -LiteralPath $ExportPath -PathType Leaf) {
             Import-CliXml -LiteralPath $ExportPath
         } else {
             [System.Collections.Generic.List[Hashtable]]::new()
         }
 
-        [Int32]$startIndex = $deferredEmails.Count
+        [Int32]$startIndex = $exportedEmails.Count
     } process {
         [Hashtable]$boundParams = $PSBoundParameters
         if ($boundParams.ContainsKey('ExportPath')) {
@@ -121,14 +121,14 @@ function Export-ADTEmail {
 
         Write-ADTLogEntry -Message "Exporting email with properties: $(Resolve-ADTEmailLogMessage @email)"
 
-        $deferredEmails.Add($email)
+        $exportedEmails.Add($email)
     } end {
         try {
             try {
-                Export-CliXml -InputObject $deferredEmails -LiteralPath $ExportPath -Force
+                Export-CliXml -InputObject $exportedEmails -LiteralPath $ExportPath -Force
 
                 if ($PassThru) {
-                    return $deferredEmails[$startIndex..($deferredEmails.Count -1)]
+                    return $exportedEmails[$startIndex..($exportedEmails.Count -1)]
                 }
             } catch {
                 Write-Error -ErrorRecord $_
