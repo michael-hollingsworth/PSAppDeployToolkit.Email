@@ -10,6 +10,7 @@ function Initialize-ADTSessionProperty {
         [Parameter(Mandatory = $true, Position = 0)]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [String]$Name,
+
         [Parameter(Mandatory = $true, Position = 1)]
         [AllowEmptyCollection()]
         [AllowEmptyString()]

@@ -6,7 +6,7 @@ function Export-ADTEmail {
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.From')]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress]$From,
-        
+
         [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.To')]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]

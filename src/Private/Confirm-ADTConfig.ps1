@@ -4,6 +4,7 @@ function Confirm-ADTConfig {
         [Parameter(Mandatory = $true)]
         [AllowEmptyCollection()]
         [Hashtable]$Config,
+
         [Parameter(Mandatory = $true)]
         [AllowEmptyCollection()]
         [Hashtable]$ConfigTemplate
