@@ -83,6 +83,7 @@ function Export-ADTEmail {
 
         # If the export path is not provided, attempt to get it from the config
         if (-not $PSBoundParameters.ContainsKey('ExportPath')) {
+            Initialize-ADTModuleIfUnitialized -Cmdlet $PSCmdlet
             $adtConfig = Get-ADTConfig
             [Boolean]$configContainsExportPath = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.Containskey('ExportPath') -and (-not [String]::IsNullOrWhiteSpace($adtConfig.Email.ExportPath))
             if (-not $configContainsExportPath) {
