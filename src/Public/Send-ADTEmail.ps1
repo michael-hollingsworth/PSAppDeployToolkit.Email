@@ -79,7 +79,7 @@ function Send-ADTEmail {
                 if ($Defer) {
                     if (-not (Test-ADTSessionActive)) {
                         #TODO:
-                        $naerParams = @{
+                        [Hashtable]$naerParams = @{
                             Exception = [System.InvalidOperationException]::new("An ADT Session must be active to defer emails.")
                             Category = [System.Management.Automation.ErrorCategory]::InvalidOperation
                             ErrorId = 'AdtSessionRequiredToDeferEmail'
@@ -97,11 +97,11 @@ function Send-ADTEmail {
 
                 #TODO: Validate that the To, From, SmtpServer, and Port fields have values
                 if (-not $PSBoundParameters.ContainsKey('From')) {
-                    throw (New-ADTValidateScriptErrorRecord -ParameterName From -ProvidedValue $From -ExceptionMessage 'Parameter value cannot be null or white space')
+                    throw (New-ADTValidateScriptErrorRecord -ParameterName From -ProvidedValue $From -ExceptionMessage 'Parameter value cannot be null or white space.')
                 }
 
                 Write-ADTLogEntry -Message "Attempting to send email with properties: $(Resolve-ADTEmailLogMessage -Cmdlet $PSCmdlet)"
-                $message = [System.Net.Mail.MailMessage]::new()
+                [System.Net.Mail.MailMessage]$message = [System.Net.Mail.MailMessage]::new()
                 try {
                     # Properties that can only be modified using the Add() method
                     foreach ($property in @('AlternateViews', 'Attachments', 'Bcc', 'Cc', 'Headers', 'ReployToList', 'To')) {
