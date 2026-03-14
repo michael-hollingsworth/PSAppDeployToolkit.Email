@@ -74,7 +74,7 @@ function Export-ADTEmail {
             if ([String]::IsNullOrWhiteSpace($_)) {
                 $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName ExportPath -ProvidedValue $_ -ExceptionMessage 'The specified input was null or an empty string.'))
             }
-            if (-not (Test-Path -LiteralPath $_ -IsValid)) {
+            if (-not (Test-Path -LiteralPath $_ -PathType Leaf -IsValid)) {
                 $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName ExportPath -ProvidedValue $_ -ExceptionMessage 'The specified file path is not valid.'))
             }
             if (Test-Path -LiteralPath $_ -PathType Container) {
@@ -92,7 +92,10 @@ function Export-ADTEmail {
         Initialize-ADTFunction -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
 
         # If the export path is not provided, attempt to get it from the config
-        if (-not $PSBoundParameters.ContainsKey('ExportPath')) {
+        [String]$literalPath = if ($PSBoundParameters.ContainsKey('ExportPath')) {
+            $PSBoundParameters.Remove('ExportPath')
+            $ExportPath
+        } else {
             Initialize-ADTModuleIfUnitialized -Cmdlet $PSCmdlet
             $adtConfig = Get-ADTConfig
             [Boolean]$configContainsExportPath = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.Containskey('ExportPath') -and (-not [String]::IsNullOrWhiteSpace($adtConfig.Email.ExportPath))
@@ -107,7 +110,7 @@ function Export-ADTEmail {
             }
 
             # If the export path is a folder add the child path of 'ExportedEmails.xml'
-            $ExportPath = if (Test-Path -LiteralPath $_ -PathType Container) {
+            if (Test-Path -LiteralPath $_ -PathType Container) {
                 Join-Path -Path $adtConfig.Email.ExportPath -ChildPath 'ExportedEmails.xml'
             } else  {
                 $adtConfig.Email.ExportPath
@@ -115,18 +118,14 @@ function Export-ADTEmail {
         }
 
         # Combine the already exported emails with the emails we are about to export.
-        [System.Collections.Generic.List[Hashtable]]$exportedEmails = if (Test-Path -LiteralPath $ExportPath -PathType Leaf) {
-            Import-CliXml -LiteralPath $ExportPath
+        [System.Collections.Generic.List[Hashtable]]$exportedEmails = if (Test-Path -LiteralPath $literalPath -PathType Leaf) {
+            Import-CliXml -LiteralPath $literalPath
         } else {
             [System.Collections.Generic.List[Hashtable]]::new()
         }
 
         [Int32]$startIndex = $exportedEmails.Count
     } process {
-        if ($PSBoundParameters.ContainsKey('ExportPath')) {
-            $PSBoundParameters.Remove('ExportPath')
-        }
-
         Resolve-ADTEmailParameters -Cmdlet $PSCmdlet
 
         Write-ADTLogEntry -Message "Exporting email with properties: $(Resolve-ADTEmailLogMessage -Cmdlet $PSCmdlet)"
@@ -135,7 +134,7 @@ function Export-ADTEmail {
     } end {
         try {
             try {
-                Export-CliXml -InputObject $exportedEmails -LiteralPath $ExportPath -Force
+                Export-CliXml -InputObject $exportedEmails -LiteralPath $literalPath -Force
 
                 if ($PassThru) {
                     return $exportedEmails[$startIndex..($exportedEmails.Count -1)]
