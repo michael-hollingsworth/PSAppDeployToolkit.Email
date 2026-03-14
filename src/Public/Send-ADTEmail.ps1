@@ -87,10 +87,9 @@ function Send-ADTEmail {
                         throw (New-ADTErrorRecord @naerParams)
                     }
 
-                    [Hashtable]$boundParams = $PSBoundParameters
-                    $boundParams.Remove('Defer')
+                    $PSBoundParameters.Remove('Defer')
                     Write-ADTLogEntry -Message "Deferring email with properties: $(Resolve-ADTEmailLogMessage -Cmdlet $PSCmdlet)"
-                    (Get-ADTSession).DeferredEmails.Add($boundParams)
+                    (Get-ADTSession).DeferredEmails.Add($PSBoundParameters)
                     return
                 }
 
