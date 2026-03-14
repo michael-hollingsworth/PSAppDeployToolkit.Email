@@ -26,6 +26,7 @@ function Send-ADTEmail {
         [String]$Subject,
 
         [Parameter()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [Alias('Message')]
         [String]$Body,
 
