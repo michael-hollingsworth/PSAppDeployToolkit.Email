@@ -32,6 +32,15 @@ function Send-ADTEmail {
 
         [Parameter()]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [ValidateScript({
+            if ([String]::IsNullOrWhiteSpace($_)) {
+                $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName Attachment -ProvidedValue $_ -ExceptionMessage 'The provided value cannot be null or white space.'))
+            }
+            if (-not (Test-Path -LiteralPath $_ -PathType Leaf -IsValid)) {
+                $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName Attachment -ProvidedValue $_ -ExceptionMessage 'The provided value is not a valid file path.'))
+            }
+            return !!$_
+        })]
         [String[]]$Attachment,
 
         [Parameter()]
@@ -80,44 +89,45 @@ function Send-ADTEmail {
 
                     [Hashtable]$boundParams = $PSBoundParameters
                     $boundParams.Remove('Defer')
-                    Write-ADTLogEntry -Message "Deferring email with properties: $(Resolve-ADTEmailLogMessage @boundparams)"
+                    Write-ADTLogEntry -Message "Deferring email with properties: $(Resolve-ADTEmailLogMessage -Cmdlet $PSCmdlet)"
                     (Get-ADTSession).DeferredEmails.Add($boundParams)
                     return
                 }
 
-                [Hashtable]$emailProperties = Resolve-ADTEmailParameters @PSBoundParameters
-                [Hashtable]$smtpClientProperties = $emailProperties.SmtpClient
-                $emailProperties.Remove('SmtpClient')
+                Resolve-ADTEmailParameters -Cmdlet $PSCmdlet
 
-                Write-ADTLogEntry -Message "Attempting to send email with properties: $(Resolve-ADTEmailLogMessage @emailProperties)"
-                $message = [System.Net.Mail.MailMessage]::new($emailProperties.From, $emailProperties.To)
+                #TODO: Validate that the To, From, SmtpServer, and Port fields have values
+                if (-not $PSBoundParameters.ContainsKey('From')) {
+                    throw (New-ADTValidateScriptErrorRecord -ParameterName From -ProvidedValue $From -ExceptionMessage 'Parameter value cannot be null or white space')
+                }
+
+                Write-ADTLogEntry -Message "Attempting to send email with properties: $(Resolve-ADTEmailLogMessage -Cmdlet $PSCmdlet)"
+                $message = [System.Net.Mail.MailMessage]::new()
                 try {
-                    $emailProperties.Remove('From')
-                    $emailProperties.Remove('To')
-
                     # Properties that can only be modified using the Add() method
-                    foreach ($property in @('Attachments', 'Bcc', 'Cc')) {
-                        if ($emailProperties.ContainsKey($property)) {
-                            foreach ($value in $emailProperties[$property]) {
-                                $message.$property.Add($value)
-                            }
+                    foreach ($property in @('AlternateViews', 'Attachments', 'Bcc', 'Cc', 'Headers', 'ReployToList', 'To')) {
+                        if (-not $PSBoundParameters.ContainsKey($property)) {
+                            continue
+                        }
 
-                            $emailProperties.Remove($property)
+                        foreach ($value in $PSBoundParameters.$property) {
+                            $message.$property.Add($value)
                         }
                     }
 
                     # All remaining properties
-                    foreach ($property in $emailProperties.Keys) {
-                        $message.$property = $emailProperties[$property]
+                    foreach ($property in @('Body', 'BodyEncoding', 'BodyTransferEncoding', 'DeliveryNotificationOptions', 'From', 'HeadersEncoding', 'IsBodyHtml', 'Priority', 'ReplyTo', 'Sender', 'Subject', 'SubjectEncoding')) {
+                        if ($PSBoundParameters.ContainsKey($property)) {
+                            $message.$property = $PSBoundParameters.$property
+                        }
                     }
 
-                    [System.Net.Mail.SmtpClient]$smtpClient = [System.Net.Mail.SmtpClient]::new($smtpClientProperties['SmtpServer'], $smtpClientProperties['Port'])
+                    [System.Net.Mail.SmtpClient]$smtpClient = [System.Net.Mail.SmtpClient]::new($PSBoundParameters.SmtpServer)
                     try {
-                        $smtpClientProperties.Remove('SmtpServer')
-                        $smtpClientProperties.Remove('Port')
-
-                        foreach ($property in $smtpClientProperties.Keys) {
-                            $smtpClient.$property = $smtpClientProperties[$property]
+                        foreach ($property in @('Credentials', 'DeliveryFormat', 'DeliveryMethod', 'EnableSsl', 'Host', 'PickupDirectoryLocation', 'Port', 'TargetName', 'Timeout', 'UseDefaultCredentials')) {
+                            if ($PSBoundParameters.ContainsKey($property)) {
+                                $smtpClient.$property = $PSBoundParameters.$property
+                            }
                         }
 
                         $smtpClient.Send($message)
@@ -129,6 +139,7 @@ function Send-ADTEmail {
                     $message.Dispose()
                 }
             } catch {
+                #TODO: See if this can be better re-organized
                 Initialize-ADTModuleIfUnitialized -Cmdlet $PSCmdlet
                 $adtConfig = Get-ADTConfig
                 if (-not $adtConfig.ContainsKey('Email')) {

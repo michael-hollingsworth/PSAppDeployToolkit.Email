@@ -27,11 +27,21 @@ function Export-ADTEmail {
         [String]$Subject,
 
         [Parameter()]
+        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [Alias('Message')]
         [String]$Body,
 
         [Parameter()]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [ValidateScript({
+            if ([String]::IsNullOrWhiteSpace($_)) {
+                $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName Attachment -ProvidedValue $_ -ExceptionMessage 'The provided value cannot be null or white space.'))
+            }
+            if (-not (Test-Path -LiteralPath $_ -PathType Leaf -IsValid)) {
+                $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName Attachment -ProvidedValue $_ -ExceptionMessage 'The provided value is not a valid file path.'))
+            }
+            return !!$_
+        })]
         [String[]]$Attachment,
 
         [Parameter()]
@@ -113,15 +123,15 @@ function Export-ADTEmail {
 
         [Int32]$startIndex = $exportedEmails.Count
     } process {
-        [Hashtable]$boundParams = $PSBoundParameters
-        if ($boundParams.ContainsKey('ExportPath')) {
-            $boundParams.Remove('ExportPath')
+        if ($PSBoundParameters.ContainsKey('ExportPath')) {
+            $PSBoundParameters.Remove('ExportPath')
         }
-        [Hashtable]$email = Resolve-ADTEmailParameters @boundParams
 
-        Write-ADTLogEntry -Message "Exporting email with properties: $(Resolve-ADTEmailLogMessage @email)"
+        Resolve-ADTEmailParameters -Cmdlet $PSCmdlet
 
-        $exportedEmails.Add($email)
+        Write-ADTLogEntry -Message "Exporting email with properties: $(Resolve-ADTEmailLogMessage -Cmdlet $PSCmdlet)"
+
+        $exportedEmails.Add($PSBoundParameters)
     } end {
         try {
             try {

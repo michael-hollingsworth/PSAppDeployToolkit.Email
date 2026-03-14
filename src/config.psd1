@@ -16,20 +16,19 @@
             # List of email addresses to send emails to when the -To parameter isn't used with `Send-Email`.
             To = @()
 
-            SmtpClient = @{
-                #
-                EnableSsl = $false
+            # SMTP client properties
+            ##
+            EnableSsl = $false
 
-                # SMTP port to send emails on
-                Port = 25
+            ## SMTP port to send emails on
+            Port = 25
 
-                # Address of SMTP server to route emails through
-                SmtpServer = 'smtp.MyDomain.com'
+            ## Address of SMTP server to route emails through
+            SmtpServer = 'smtp.MyDomain.com'
 
-                # Whether or not to use the credentials of the calling user.
-                ## In a scenario where you are sending emails to an unauthenticated SMTP server, enabling this can lead to errors when the calling user is a member of the "Protected Users" group.
-                UseDefaultCredentials = $false
-            }
+            ## Whether or not to use the credentials of the calling user.
+            ### In a scenario where you are sending emails to an unauthenticated SMTP server, enabling this can lead to errors when the calling user is a member of the "Protected Users" group.
+            UseDefaultCredentials = $false
         }
 
         # Whether or not to defer emails (send them when the current ADT session closes) when `Send-Email` fails to send them.

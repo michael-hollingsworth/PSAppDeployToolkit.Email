@@ -11,7 +11,7 @@ if (-not ([System.Environment]::StackTrace.Split("`n") -like '*Microsoft.PowerSh
 # Rethrowing caught exceptions makes the error output from Import-Module look better.
 try {
     # Set up lookup table for all cmdlets used within module, using PSAppDeployToolkit's as a basis.
-    $CommandTable = [System.Collections.Generic.Dictionary[System.String, System.Management.Automation.CommandInfo]](& (& 'Microsoft.PowerShell.Core\Get-Command' -Name Get-ADTCommandTable -FullyQualifiedModule @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.0.6' }))
+    $CommandTable = [System.Collections.Generic.Dictionary[System.String, System.Management.Automation.CommandInfo]](& (& 'Microsoft.PowerShell.Core\Get-Command' -Name Get-ADTCommandTable -FullyQualifiedModule @{ ModuleName = 'PSAppDeployToolkit'; Guid = '8c3c366b-8606-4576-9f2d-4051144f7ca2'; ModuleVersion = '4.2.0' }))
 
     # Set required variables to ensure module functionality.
     New-Variable -Name ErrorActionPreference -Value ([System.Management.Automation.ActionPreference]::Stop) -Option Constant -Force

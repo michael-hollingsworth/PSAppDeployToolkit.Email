@@ -22,12 +22,10 @@ function Confirm-ADTEmailConfig {
                             From = [System.Net.Mail.MailAddress]
                             Priority = [System.Net.Mail.MailPriority]
                             To = [System.Net.Mail.MailAddress[]]
-                            SmtpClient = @{
-                                EnableSsl = [Boolean]
-                                Port = [UInt16]
-                                SmtpServer = [String]
-                                UseDefaultCredentials = [Boolean]
-                            }
+                            EnableSsl = [Boolean]
+                            Port = [UInt16]
+                            SmtpServer = [String]
+                            UseDefaultCredentials = [Boolean]
                         }
 
                         DeferOnFailureToSend = [Boolean]

@@ -1,120 +1,62 @@
 function Resolve-ADTEmailParameters {
     [CmdletBinding()]
-    [OutputType([Hashtable])]
     param (
-        [Parameter()]
+        [Parameter(Mandatory = $true, Position = 0)]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [System.Net.Mail.MailAddress]$From,
-        [Parameter()]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [System.Net.Mail.MailAddress[]]$To,
-        [Parameter()]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [System.Net.Mail.MailAddress[]]$Cc,
-        [Parameter()]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [System.Net.Mail.MailAddress[]]$Bcc,
-        [Parameter()]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [String]$Subject,
-        [Parameter()]
-        [String]$Body,
-        [Parameter()]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [String[]]$Attachment,
-        [Parameter()]
-        [Switch]$IncludeLogs,
-        [Parameter()]
-        [System.Net.Mail.MailPriority]$Priority,
-        [Parameter()]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [String]$SmtpServer,
-        [Parameter()]
-        [ValidateRange(1, [Int32]::MaxValue)]
-        [Int32]$Port = 25,
-        [Parameter()]
-        [Switch]$UseDefaultCredentials,
-        [Parameter()]
-        [Alias('UseSsl')]
-        [Switch]$EnableSsl,
-        [Switch]$Defer
+        [System.Management.Automation.PSCmdlet]$Cmdlet
     )
 
     begin {
         $adtSession = Initialize-ADTModuleIfUnitialized -Cmdlet $PSCmdlet -PassThruActiveSession
         $adtConfig = Get-ADTConfig
     } process {
-        [Hashtable]$emailProperties = @{ Subject = $Subject }
-
-        if (-not [String]::IsNullOrWhiteSpace($Body)) {
-            $emailProperties.Add('Body', $Body)
-        }
-
-        [Boolean]$configHasDefaults = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults')
-        [Boolean]$configHasSmtpDefaults = $configHasDefaults -and $adtConfig.Email.Defaults.ContainsKey('SmtpClient')
-
-        [String[]]$adtEmailConfigProperties = @(
-            'Bcc',
-            'Cc',
-            'From',
-            'Priority',
-            'To'
-        )
-
-        foreach ($property in $adtEmailConfigProperties) {
-            if ($PSBoundParameters.ContainsKey($property)) {
-                $emailProperties.Add($property, $PSBoundParameters[$property])
-            } elseif ($configHasDefaults -and $adtConfig.Email.Defaults.ContainsKey($property)) {
-                $emailProperties.Add($property, $adtConfig.Email.Defaults[$property])
-            }
-        }
-
-        [Hashtable]$smtpClientProperties = [Hashtable]::new()
-        [String[]]$adtsmtpClientProperties = @(
-            'Port',
-            'SmtpServer',
-            'UseDefaultCredentials',
-            'EnableSsl'
-        )
-
-        foreach ($property in $adtsmtpClientProperties) {
-            if ($PSBoundParameters.ContainsKey($property)) {
-                $smtpClientProperties.Add($property, $PSBoundParameters[$property])
-            } elseif ($configHasSmtpDefaults -and $adtConfig.Email.Defaults.SmtpClient.ContainsKey($property)) {
-                $smtpClientProperties.Add($property, $adtConfig.Email.Defaults.SmtpClient[$property])
-            }
-        }
-
-        if ((-not $smtpClientProperties.ContainsKey('SmtpServer')) -and (-not [String]::IsNullOrWhiteSpace($PSEmailServer))) {
-            $smtpClientProperties.Add('SmtpServer', $PSEmailServer)
-        }
-
-        if ($IncludeLogs) {
-            if ((-not [String]::IsNullOrWhiteSpace($adtSession.LogPath)) -and (-not [String]::IsNullOrWhiteSpace($adtSession.LogName)) -and ($logPath = Join-Path -Path $adtSession.LogPath -ChildPath $adtSession.LogName)) {
-                $Attachment += $logPath
-            }
-
-            if ($adtSession.AdditionalLogFiles.Count) {
-                [String[]]$Attachment += $adtSession.AdditionalLogFiles
-            }
-        }
-
-        if ($Attachment) {
-            # Only include attachments that exist
-            [String[]]$attachmentsToSend = foreach ($path in $Attachment) {
-                if (Test-Path -LiteralPath $path -PathType Leaf) {
-                    $path
+        if ($adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults')) {
+            foreach ($property in $adtConfig.Email.Defaults.Keys) {
+                if (-not $Cmdlet.MyInvocation.BoundParameters.ContainsKey($property)) {
+                    $Cmdlet.MyInvocation.BoundParameters.Add($property, $adtConfig.Email.Defaults.$property)
                 }
             }
-
-            # Don't include duplicate attachments
-            $emailProperties.Attachments = $attachmentsToSend | Select-Object -Unique
         }
 
-        if ($smtpClientProperties.Keys.Count) {
-            $emailProperties.Add('SmtpClient', $smtpClientProperties)
+        if ((-not $Cmdlet.MyInvocation.BoundParameters.ContainsKey('SmtpServer')) -and (-not [String]::IsNullOrWhiteSpace($PSEmailServer))) {
+            $Cmdlet.MyInvocation.BoundParameters.Add('SmtpServer', $PSEmailServer)
         }
 
-        return $emailProperties
+        [System.Collections.Generic.List[String]]$attachments = [System.Collections.Generic.List[String]]::new()
+
+        if ($Cmdlet.MyInvocation.BoundParameters.ContainsKey('Attachment')) {
+            $attachments.AddRange($Cmdlet.MyInvocation.BoundParameters.Attachment)
+        }
+
+        if ($Cmdlet.MyInvocation.BoundParameters['IncludeLogs'] -and $adtSession) {
+            if ((-not [String]::IsNullOrWhiteSpace($adtSession.LogPath)) -and (-not [String]::IsNullOrWhiteSpace($adtSession.LogName)) -and ($logPath = Join-Path -Path $adtSession.LogPath -ChildPath $adtSession.LogName)) {
+                $attachments.Add($logPath)
+            }
+
+            foreach ($path in $adtSession.AdditionalLogFiles) {
+                if (-not [String]::IsNullOrWhiteSpace($path)) {
+                    $attachments.Add($path)
+                }
+            }
+        }
+
+        # Only include attachments that exist
+        [String[]]$attachmentsToSend = foreach ($path in $attachments) {
+            if (Test-Path -LiteralPath $path -PathType Leaf) {
+                $path
+            }
+        }
+
+        # If none of the attachment paths provided are valid, remove the parameter.
+        if (-not $attachmentsToSend.Count) {
+            if ($Cmdlet.MyInvocation.BoundParameters.ContainsKey('Attachment')) {
+                $Cmdlet.MyInvocation.BoundParameters.Remove('Attachment')
+            }
+
+            return
+        }
+
+        # Don't include duplicate attachments
+        $Cmdlet.MyInvocation.BoundParameters['Attachment'] = $attachmentsToSend | Select-Object -Unique
     }
 }
