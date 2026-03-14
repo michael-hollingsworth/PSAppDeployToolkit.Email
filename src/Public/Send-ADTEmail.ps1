@@ -139,7 +139,7 @@ function Send-ADTEmail {
                 }
             } catch {
                 #TODO: See if this can be better re-organized
-                Initialize-ADTModuleIfUnitialized -Cmdlet $PSCmdlet
+                Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
                 $adtConfig = Get-ADTConfig
                 if (-not $adtConfig.ContainsKey('Email')) {
                 } elseif ($adtConfig.Email.ContainsKey('DeferOnFailureToSend') -and $adtConfig.Email.DeferOnFailureToSend) {

@@ -33,7 +33,7 @@ function Import-ADTEmail {
             try {
                 # If the import path is not provided, attempt to get it from the config
                 if (-not $PSBoundParameters.ContainsKey('LiteralPath')) {
-                    Initialize-ADTModuleIfUnitialized -Cmdlet $PSCmdlet
+                    Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
                     $adtConfig = Get-ADTConfig
                     [Boolean]$configContainsExportPath = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.Containskey('ExportPath') -and (-not [String]::IsNullOrWhiteSpace($adtConfig.Email.ExportPath))
                     if (-not $configContainsExportPath) {

@@ -7,7 +7,7 @@ function Resolve-ADTEmailParameters {
     )
 
     begin {
-        $adtSession = Initialize-ADTModuleIfUnitialized -Cmdlet $PSCmdlet -PassThruActiveSession
+        $adtSession = Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet -PassThruActiveSession
         $adtConfig = Get-ADTConfig
     } process {
         if ($adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults')) {
