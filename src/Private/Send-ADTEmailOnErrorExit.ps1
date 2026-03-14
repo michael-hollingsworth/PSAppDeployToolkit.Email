@@ -33,11 +33,8 @@ function Send-ADTEmailOnErrorExit {
                     return
                 }
 
-                try {
-                    if ($exitCode -in ([Enum]::GetValues([ExitCode]).value__)) {
-                        return
-                    }
-                } catch {
+                if (($null -ne [System.Management.Automation.PSTypeName]::new('ExitCode').Type) -and ($exitCode -in ([Enum]::GetValues([ExitCode]).value__))) {
+                    return
                 }
 
                 Write-ADTLogEntry -Message "An unhandled, terminating error occurred resulting in exit code [$exitCode]." -Severity Error
