@@ -21,19 +21,6 @@ function Send-ADTEmail {
         [String]$Body,
 
         [Parameter()]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [ValidateScript({
-            if ([String]::IsNullOrWhiteSpace($_)) {
-                $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName Attachment -ProvidedValue $_ -ExceptionMessage 'The provided value cannot be null or white space.'))
-            }
-            if (-not (Test-Path -LiteralPath $_ -PathType Leaf -IsValid)) {
-                $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName Attachment -ProvidedValue $_ -ExceptionMessage 'The provided value is not a valid file path.'))
-            }
-            return !!$_
-        })]
-        [String[]]$Attachment,
-
-        [Parameter()]
         [Switch]$IncludeLogs,
 
         [Parameter()]
@@ -63,6 +50,33 @@ function Send-ADTEmail {
         [Boolean]$configContainsEmailDefaults = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults')
 
         [System.Management.Automation.RuntimeDefinedParameterDictionary]$paramDictionary = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+        $paramDictionary.Add('Attachment', [System.Management.Automation.RuntimeDefinedParameter]::new(
+            'Attachment', [String[]], $(
+                [System.Management.Automation.ParameterAttribute]@{
+                    Mandatory = $false
+                    ValueFromPipeline = $true
+                    ValueFromPipelineByPropertyName = $true
+                    HelpMessage = "Specifies the path and file names of files to be attached to the email message. You can use this parameter or pipe the paths and file names to Send-ADTEmail."
+                }
+                [System.Management.Automation.AliasAttribute]::new('Attachments', 'PSPath')
+                [System.Management.Automation.ValidateScriptAttribute]::new({
+                    if ([String]::IsNullOrWhiteSpace($_)) {
+                        $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName Attachment -ProvidedValue $_ -ExceptionMessage 'The provided value cannot be null or white space.'))
+                    }
+                    if ($Defer) {
+                        if (-not (Test-Path -LiteralPath $_ -PathType Leaf -IsValid)) {
+                            $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName Attachment -ProvidedValue $_ -ExceptionMessage 'The provided value is not a valid file path.'))
+                        }
+                    } else {
+                        if (-not (Test-Path -LiteralPath $_ -PathType Leaf)) {
+                            $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName Attachment -ProvidedValue $_ -ExceptionMessage 'The specified path does not exist.'))
+                        }
+                    }
+                    return !!$_
+                })
+            )
+        ))
 
         $paramDictionary.Add('From', [System.Management.Automation.RuntimeDefinedParameter]::new(
             'From', [System.Net.Mail.MailAddress], $(
