@@ -3,16 +3,6 @@ function Export-ADTEmail {
     [OutputType([Hashtable])]
     param (
         [Parameter()]
-        [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.From')]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [System.Net.Mail.MailAddress]$From,
-
-        [Parameter()]
-        [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.To')]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [System.Net.Mail.MailAddress[]]$To,
-
-        [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Cc')]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$Cc,
@@ -52,20 +42,16 @@ function Export-ADTEmail {
         [System.Net.Mail.MailPriority]$Priority,
 
         [Parameter()]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
-        [String]$SmtpServer,
-
-        [Parameter()]
-        [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.SmtpClient.Port')]
+        [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Port')]
         [ValidateRange(1, [Int32]::MaxValue)]
         [Int32]$Port = 25,
 
         [Parameter()]
-        [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.SmtpClient.UseDefaultCredentials')]
+        [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.UseDefaultCredentials')]
         [Switch]$UseDefaultCredentials,
 
         [Parameter()]
-        [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.SmtpClient.EnableSsl')]
+        [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.EnableSsl')]
         [Alias('UseSsl')]
         [Switch]$EnableSsl,
 
@@ -87,6 +73,49 @@ function Export-ADTEmail {
         [Parameter()]
         [Switch]$PassThru
     )
+
+    dynamicparam {
+        Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
+        $adtConfig = Get-ADTConfig
+        [Boolean]$configContainsEmailDefaults = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults')
+
+        [System.Management.Automation.RuntimeDefinedParameterDictionary]$paramDictionary = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+        $paramDictionary.Add('From', [System.Management.Automation.RuntimeDefinedParameter]::new(
+            'From', [System.Net.Mail.MailAddress], $(
+                [System.Management.Automation.ParameterAttribute]@{
+                    Mandatory = (-not ($configContainsEmailDefaults -and $adtConfig.Email.Defaults.ContainsKey('From')))
+                    HelpMessage = "The From parameter is required when not set in the ADT config under the Email.Defaults.From property. This parameter specifies the sender's email address. Enter a name (optional) and email address, such as `Name <someone@fabrikam.com>`."
+                }
+                [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.From' }
+                [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpaceAttribute]::new()
+            )
+        ))
+
+        $paramDictionary.Add('SmtpServer', [System.Management.Automation.RuntimeDefinedParameter]::new(
+            'SmtpServer', [String], $(
+                [System.Management.Automation.ParameterAttribute]@{
+                    Mandatory = ((-not ($configContainsEmailDefaults -and $adtConfig.Email.Defaults.ContainsKey('SmtpServer')) -and [String]::IsNullOrWhiteSpace($PSEmailServer)))
+                    HelpMessage = "The SmtpServer parameter is required when not set in the ```$PSEmailServer` preference variable or the ADT config under the `Email.Defaults.SmtpServer` property. This parameter specified the name of the SMTP server that sends the email message."
+                }
+                [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.SmtpServer or $PSEmailServer' }
+                [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpaceAttribute]::new()
+            )
+        ))
+
+        $paramDictionary.Add('To', [System.Management.Automation.RuntimeDefinedParameter]::new(
+            'To', [System.Net.Mail.MailAddress[]], $(
+                [System.Management.Automation.ParameterAttribute]@{
+                    Mandatory = (-not ($configContainsEmailDefaults -and $adtConfig.Email.Defaults.ContainsKey('To')))
+                    HelpMessage = "The To parameter is required when not set in the ADT config under the Email.Defaults.To property. This parameter specifies the recipient's email address. Enter names (optional) and the email address, such as `Name <someone@fabrikam.com>`."
+                }
+                [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.To' }
+                [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpaceAttribute]::new()
+            )
+        ))
+
+        return $paramDictionary
+    }
 
     begin {
         Initialize-ADTFunction -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
