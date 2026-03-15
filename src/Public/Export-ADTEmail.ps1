@@ -43,21 +43,6 @@ function Export-ADTEmail {
         [Switch]$EnableSsl,
 
         [Parameter()]
-        [ValidateScript({
-            if ([String]::IsNullOrWhiteSpace($_)) {
-                $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName ExportPath -ProvidedValue $_ -ExceptionMessage 'The specified input was null or an empty string.'))
-            }
-            if (-not (Test-Path -LiteralPath $_ -PathType Leaf -IsValid)) {
-                $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName ExportPath -ProvidedValue $_ -ExceptionMessage 'The specified file path is not valid.'))
-            }
-            if (Test-Path -LiteralPath $_ -PathType Container) {
-                $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName ExportPath -ProvidedValue $_ -ExceptionMessage 'The specified file path cannot be a folder.'))
-            }
-            return !!$_
-        })]
-        [String]$ExportPath,
-
-        [Parameter()]
         [Switch]$PassThru
     )
 
@@ -92,6 +77,28 @@ function Export-ADTEmail {
                     }
                     return !!$_
                 })
+            )
+        ))
+
+        $paramDictionary.Add('ExportPath', [System.Management.Automation.RuntimeDefinedParameter]::new(
+            'ExportPath', [String], $(
+                [System.Management.Automation.ParameterAttribute]@{
+                    Mandatory = (-not ($adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('ExportPath')))
+                    HelpMessage = 'The ExportPath parameter is required when not set in the ADT config under the Email.ExportPath property. This parameter specifies the path to export emails to when calling Export-ADTEmail.'
+                }
+                [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.ExportPath' }
+                [System.Management.Automation.ValidateScriptAttribute]::new(({
+                    if ([String]::IsNullOrWhiteSpace($_)) {
+                        $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName ExportPath -ProvidedValue $_ -ExceptionMessage 'The specified input was null or an empty string.'))
+                    }
+                    if (-not (Test-Path -LiteralPath $_ -PathType Leaf -IsValid)) {
+                        $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName ExportPath -ProvidedValue $_ -ExceptionMessage 'The specified file path is not valid.'))
+                    }
+                    if (Test-Path -LiteralPath $_ -PathType Container) {
+                        $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName ExportPath -ProvidedValue $_ -ExceptionMessage 'The specified file path cannot be a folder.'))
+                    }
+                    return !!$_
+                }))
             )
         ))
 
@@ -139,18 +146,7 @@ function Export-ADTEmail {
             $PSBoundParameters.Remove('ExportPath')
             $ExportPath
         } else {
-            Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
             $adtConfig = Get-ADTConfig
-            [Boolean]$configContainsExportPath = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.Containskey('ExportPath') -and (-not [String]::IsNullOrWhiteSpace($adtConfig.Email.ExportPath))
-            if (-not $configContainsExportPath) {
-                [Hashtable]$naerParams = @{
-                    Exception = [System.Management.Automation.PSArgumentNullException]::new('ExportPath')
-                    Category = [System.Management.Automation.ErrorCategory]::InvalidArgument
-                    ErrorId = 'InvalidExportPathParameterValue'
-                    TargetObject = $ExportPath
-                }
-                throw (New-ADTErrorRecord @naerParams)
-            }
 
             # If the export path is a folder add the child path of 'ExportedEmails.xml'
             if (Test-Path -LiteralPath $_ -PathType Container) {
