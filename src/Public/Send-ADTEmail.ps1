@@ -36,7 +36,7 @@ function Send-ADTEmail {
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.UseDefaultCredentials')]
         [Switch]$UseDefaultCredentials,
 
-        [Parameter()]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.EnableSsl')]
         [Alias('UseSsl')]
         [Switch]$EnableSsl,
