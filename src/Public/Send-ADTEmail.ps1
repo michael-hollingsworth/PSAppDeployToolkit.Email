@@ -11,7 +11,7 @@ function Send-ADTEmail {
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$Bcc,
 
-        [Parameter()]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [String]$Subject,
 
@@ -175,22 +175,25 @@ function Send-ADTEmail {
                     $message.Dispose()
                 }
             } catch {
-                #TODO: See if this can be better re-organized
-                Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
-                $adtConfig = Get-ADTConfig
-                if (-not $adtConfig.ContainsKey('Email')) {
-                } elseif ($adtConfig.Email.ContainsKey('DeferOnFailureToSend') -and $adtConfig.Email.DeferOnFailureToSend) {
-                    if ($adtSession.InstallPhase -ne 'Finalization') {
-                        $adtSession.DeferredEmails.Add($PSBoundParameters)
-                    }
-                } elseif ($adtConfig.Email.ContainsKey('ExportOnFailureToSend') -and $adtConfig.Email.ExportOnFailureToSend) {
-                    Export-ADTEmail @PSBoundParameters
-                }
-
                 Write-Error -ErrorRecord $_
             }
         } catch {
-            Invoke-ADTFunctionErrorHandler -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState -ErrorRecord $_
+            $adtConfig = Get-ADTConfig
+            if (-not $adtConfig.ContainsKey('Email')) {
+                Write-ADTLogEntry -Message "Failed to send email. `r`n$(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
+            } elseif ($adtConfig.Email.ContainsKey('DeferOnFailureToSend') -and $adtConfig.Email.DeferOnFailureToSend) {
+                if ($adtSession.InstallPhase -ne 'Finalization') {
+                    Write-ADTLogEntry -Message "Failed to send email. Deferring email send. `r`n $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
+                    $adtSession.DeferredEmails.Add($PSBoundParameters)
+                } else {
+                    Write-ADTLogEntry -Message "Failed to send email. `r`n$(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
+                }
+            } elseif ($adtConfig.Email.ContainsKey('ExportOnFailureToSend') -and $adtConfig.Email.ExportOnFailureToSend) {
+                Write-ADTLogEntry -Message "Failed to send email. Exporting email. `r`n $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
+                Export-ADTEmail @PSBoundParameters
+            }
+
+            Invoke-ADTFunctionErrorHandler -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState -ErrorRecord $_ -Silent
         }
     } end {
         Complete-ADTFunction -Cmdlet $PSCmdlet
