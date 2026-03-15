@@ -42,6 +42,10 @@ function Export-ADTEmail {
         [Alias('UseSsl')]
         [Switch]$EnableSsl,
 
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
+        [Alias('BodyAsHtml')]
+        [Switch]$IsBodyHtml,
+
         [Parameter()]
         [Switch]$PassThru
     )
