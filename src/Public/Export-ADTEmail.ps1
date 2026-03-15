@@ -156,6 +156,10 @@ function Export-ADTEmail {
             [System.Collections.Generic.List[Hashtable]]::new()
         }
 
+        if ($PSBoundParameters.ContainsKey('PassThru')) {
+            $PSBoundParameters.Remove('PassThru')
+        }
+
         [Int32]$startIndex = $exportedEmails.Count
     } process {
         Resolve-ADTEmailParameters -Cmdlet $PSCmdlet
