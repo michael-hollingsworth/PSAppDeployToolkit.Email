@@ -41,6 +41,11 @@ function Confirm-ADTEmailConfig {
                         $adtConfig.Email.ExportPath = $adtConfig.Email.ExportPathNoAdminRights
                     }
                 }
+
+                # If the export path is a folder add the child path of 'ExportedEmails.xml'
+                if (Test-Path -LiteralPath $adtConfig.Email.ExportPath -PathType Container) {
+                    $adtConfig.Email.ExportPath = Join-Path -Path $adtConfig.Email.ExportPath -ChildPath 'ExportedEmails.xml'
+                }
             } catch {
                 Write-Error -ErrorRecord $_
             }

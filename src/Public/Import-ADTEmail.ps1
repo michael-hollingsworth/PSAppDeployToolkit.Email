@@ -26,6 +26,37 @@ function Import-ADTEmail {
         [Switch]$PassThru
     )
 
+    dynamicparam {
+        Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
+        $adtConfig = Get-ADTConfig
+
+        [System.Management.Automation.RuntimeDefinedParameterDictionary]$paramDictionary = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
+
+        $paramDictionary.Add('LiteralPath', [System.Management.Automation.RuntimeDefinedParameter]::new(
+            'LiteralPath', [String], $(
+                [System.Management.Automation.ParameterAttribute]@{
+                    Mandatory = (-not ($adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('LiteralPath')))
+                    HelpMessage = 'The LiteralPath parameter is required when not set in the ADT config under the Email.ExportPath property. This parameter specifies the path to import emails from when calling Import-ADTEmail.'
+                }
+                [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.ExportPath' }
+                [System.Management.Automation.ValidateScriptAttribute]::new(({
+                    if ([String]::IsNullOrWhiteSpace($_)) {
+                        $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName LiteralPath -ProvidedValue $_ -ExceptionMessage 'The specified input was null or an empty string.'))
+                    }
+                    if (-not (Test-Path -LiteralPath $_ -PathType Leaf -IsValid)) {
+                        $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName LiteralPath -ProvidedValue $_ -ExceptionMessage 'The specified file path is not valid.'))
+                    }
+                    if (Test-Path -LiteralPath $_ -PathType Container) {
+                        $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName LiteralPath -ProvidedValue $_ -ExceptionMessage 'The specified file path cannot be a folder.'))
+                    }
+                    return !!$_
+                }))
+            )
+        ))
+
+        return $paramDictionary
+    }
+
     begin {
         Initialize-ADTFunction -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
     } process {
@@ -33,25 +64,7 @@ function Import-ADTEmail {
             try {
                 # If the import path is not provided, attempt to get it from the config
                 if (-not $PSBoundParameters.ContainsKey('LiteralPath')) {
-                    Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
-                    $adtConfig = Get-ADTConfig
-                    [Boolean]$configContainsExportPath = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.Containskey('ExportPath') -and (-not [String]::IsNullOrWhiteSpace($adtConfig.Email.ExportPath))
-                    if (-not $configContainsExportPath) {
-                        [Hashtable]$naerParams = @{
-                            Exception = [System.Management.Automation.PSArgumentNullException]::new('ExportPath')
-                            Category = [System.Management.Automation.ErrorCategory]::InvalidArgument
-                            ErrorId = 'InvalidExportPathParameterValue'
-                            TargetObject = $ExportPath
-                        }
-                        throw (New-ADTErrorRecord @naerParams)
-                    }
-
-                    # If the export path is a folder add the child path of 'ExportedEmails.xml'
-                    $LiteralPath = if (Test-Path -LiteralPath $_ -PathType Container) {
-                        Join-Path -Path $adtConfig.Email.ExportPath -ChildPath 'ExportedEmails.xml'
-                    } else  {
-                        $adtConfig.Email.ExportPath
-                    }
+                    $LiteralPath = (get-ADTConfig).Email.ExportPath
                 }
 
                 [Hashtable[]]$importedEmails = Import-CliXml -LiteralPath $LiteralPath

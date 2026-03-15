@@ -40,6 +40,7 @@
         ExportOnFailureToSend = $true
 
         # Where to export emails that failed to send
+        ## This is also the default path where emails are imported/exported from when using the Import-ADTEmail and Export-ADTEmail functions.
         ExportPath = '$envTemp\DeferedEmails.xml'
 
         # Same as TempPath but used when ExportPath is False.

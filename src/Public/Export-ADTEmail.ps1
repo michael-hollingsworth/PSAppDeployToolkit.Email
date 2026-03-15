@@ -146,14 +146,7 @@ function Export-ADTEmail {
             $PSBoundParameters.Remove('ExportPath')
             $ExportPath
         } else {
-            $adtConfig = Get-ADTConfig
-
-            # If the export path is a folder add the child path of 'ExportedEmails.xml'
-            if (Test-Path -LiteralPath $_ -PathType Container) {
-                Join-Path -Path $adtConfig.Email.ExportPath -ChildPath 'ExportedEmails.xml'
-            } else  {
-                $adtConfig.Email.ExportPath
-            }
+            (Get-ADTConfig).Email.ExportPath
         }
 
         # Combine the already exported emails with the emails we are about to export.
