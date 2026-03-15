@@ -1,7 +1,7 @@
 function Send-ADTEmail {
     [CmdletBinding()]
     param (
-        [Parameter()]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Cc')]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$Cc,
@@ -15,7 +15,7 @@ function Send-ADTEmail {
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [String]$Subject,
 
-        [Parameter()]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
         [Alias('Message')]
         [String]$Body,
@@ -23,11 +23,11 @@ function Send-ADTEmail {
         [Parameter()]
         [Switch]$IncludeLogs,
 
-        [Parameter()]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Priority')]
         [System.Net.Mail.MailPriority]$Priority,
 
-        [Parameter()]
+        [Parameter(ValueFromPipelineByPropertyName = $true)]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Port')]
         [ValidateRange(1, [Int32]::MaxValue)]
         [Int32]$Port = 25,
@@ -82,6 +82,7 @@ function Send-ADTEmail {
             'From', [System.Net.Mail.MailAddress], $(
                 [System.Management.Automation.ParameterAttribute]@{
                     Mandatory = (-not ($configContainsEmailDefaults -and $adtConfig.Email.Defaults.ContainsKey('From')))
+                    ValueFromPipelineByPropertyName = $true
                     HelpMessage = "The From parameter is required when not set in the ADT config under the Email.Defaults.From property. This parameter specifies the sender's email address. Enter a name (optional) and email address, such as `Name <someone@fabrikam.com>`."
                 }
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.From' }
@@ -93,6 +94,7 @@ function Send-ADTEmail {
             'SmtpServer', [String], $(
                 [System.Management.Automation.ParameterAttribute]@{
                     Mandatory = ((-not ($configContainsEmailDefaults -and $adtConfig.Email.Defaults.ContainsKey('SmtpServer')) -and [String]::IsNullOrWhiteSpace($PSEmailServer)))
+                    ValueFromPipelineByPropertyName = $true
                     HelpMessage = "The SmtpServer parameter is required when not set in the ```$PSEmailServer` preference variable or the ADT config under the `Email.Defaults.SmtpServer` property. This parameter specified the name of the SMTP server that sends the email message."
                 }
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.SmtpServer or $PSEmailServer' }
@@ -104,6 +106,7 @@ function Send-ADTEmail {
             'To', [System.Net.Mail.MailAddress[]], $(
                 [System.Management.Automation.ParameterAttribute]@{
                     Mandatory = (-not ($configContainsEmailDefaults -and $adtConfig.Email.Defaults.ContainsKey('To')))
+                    ValueFromPipelineByPropertyName = $true
                     HelpMessage = "The To parameter is required when not set in the ADT config under the Email.Defaults.To property. This parameter specifies the recipient's email address. Enter names (optional) and the email address, such as `Name <someone@fabrikam.com>`."
                 }
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.To' }
