@@ -14,6 +14,7 @@ function Export-ADTEmail {
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [Alias('sub')]
         [String]$Subject,
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
@@ -43,7 +44,7 @@ function Export-ADTEmail {
         [Switch]$EnableSsl,
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [Alias('BodyAsHtml')]
+        [Alias('BodyAsHtml', 'BAH')]
         [Switch]$IsBodyHtml,
 
         [Parameter()]
@@ -125,6 +126,7 @@ function Export-ADTEmail {
                     ValueFromPipelineByPropertyName = $true
                     HelpMessage = "The SmtpServer parameter is required when not set in the ```$PSEmailServer` preference variable or the ADT config under the `Email.Defaults.SmtpServer` property. This parameter specified the name of the SMTP server that sends the email message."
                 }
+                [System.Management.Automation.AliasAttribute]::new('ComputerName')
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.SmtpServer or $PSEmailServer' }
                 [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpaceAttribute]::new()
             )

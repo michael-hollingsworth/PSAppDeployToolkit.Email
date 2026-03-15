@@ -13,6 +13,7 @@ function Send-ADTEmail {
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [Alias('sub')]
         [String]$Subject,
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
@@ -42,7 +43,7 @@ function Send-ADTEmail {
         [Switch]$EnableSsl,
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [Alias('BodyAsHtml')]
+        [Alias('BodyAsHtml', 'BAH')]
         [Switch]$IsBodyHtml,
 
         [Switch]$Defer
@@ -113,6 +114,7 @@ function Send-ADTEmail {
                     ValueFromPipelineByPropertyName = $true
                     HelpMessage = "The To parameter is required when not set in the ADT config under the Email.Defaults.To property. This parameter specifies the recipient's email address. Enter names (optional) and the email address, such as `Name <someone@fabrikam.com>`."
                 }
+                [System.Management.Automation.AliasAttribute]::new('ComputerName')
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.To' }
                 [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpaceAttribute]::new()
             )
