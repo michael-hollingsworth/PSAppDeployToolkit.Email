@@ -35,16 +35,18 @@ function Confirm-ADTEmailConfig {
                     }
                 }
 
-                # Change path to user accessible one if the caller isn't an admin
-                if (-not (Get-ADTEnvironmentTable).IsAdmin) {
-                    if (-not [String]::IsNullOrWhiteSpace($adtConfig.Email.ExportPathNoAdminRights)) {
-                        $adtConfig.Email.ExportPath = $adtConfig.Email.ExportPathNoAdminRights
+                if ($adtConfig.ContainsKey('Email')) {
+                    # Change path to user accessible one if the caller isn't an admin
+                    if (-not (Get-ADTEnvironmentTable).IsAdmin) {
+                        if ($adtConfig.Email.ContainsKey('ExportPathNoAdminRights') -and (-not [String]::IsNullOrWhiteSpace($adtConfig.Email.ExportPathNoAdminRights))) {
+                            $adtConfig.Email.ExportPath = $adtConfig.Email.ExportPathNoAdminRights
+                        }
                     }
-                }
 
-                # If the export path is a folder add the child path of 'ExportedEmails.xml'
-                if (Test-Path -LiteralPath $adtConfig.Email.ExportPath -PathType Container) {
-                    $adtConfig.Email.ExportPath = Join-Path -Path $adtConfig.Email.ExportPath -ChildPath 'ExportedEmails.xml'
+                    # If the export path is a folder add the child path of 'ExportedEmails.xml'
+                    if ($adtConfig.Email.ContainsKey('ExportPath') -and (Test-Path -LiteralPath $adtConfig.Email.ExportPath -PathType Container)) {
+                        $adtConfig.Email.ExportPath = Join-Path -Path $adtConfig.Email.ExportPath -ChildPath 'ExportedEmails.xml'
+                    }
                 }
             } catch {
                 Write-Error -ErrorRecord $_
