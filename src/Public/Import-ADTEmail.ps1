@@ -64,10 +64,10 @@ function Import-ADTEmail {
             try {
                 # If the import path is not provided, attempt to get it from the config
                 if (-not $PSBoundParameters.ContainsKey('LiteralPath')) {
-                    $LiteralPath = (get-ADTConfig).Email.ExportPath
+                    $PSBoundParameters.Add('LiteralPath', (Get-ADTConfig).Email.ExportPath)
                 }
 
-                [Hashtable[]]$importedEmails = Import-CliXml -LiteralPath $LiteralPath
+                [Hashtable[]]$importedEmails = Import-CliXml -LiteralPath $PSBoundParameters.LiteralPath
 
                 if (-not $importedEmails.Count) {
                     return
