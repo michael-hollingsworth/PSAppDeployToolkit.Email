@@ -3,21 +3,21 @@ function Send-ADTEmail {
     param (
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Cc')]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$Cc,
 
         [Parameter()]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.Defaults.Bcc')]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpace()]
         [System.Net.Mail.MailAddress[]]$Bcc,
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpace()]
         [Alias('sub')]
         [String]$Subject,
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpace()]
         [Alias('Message')]
         [String]$Body,
 
@@ -91,7 +91,7 @@ function Send-ADTEmail {
                     HelpMessage = "The From parameter is required when not set in the ADT config under the Email.Defaults.From property. This parameter specifies the sender's email address. Enter a name (optional) and email address, such as `Name <someone@fabrikam.com>`."
                 }
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.From' }
-                [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpaceAttribute]::new()
+                [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpaceAttribute]::new()
             )
         ))
 
@@ -103,7 +103,7 @@ function Send-ADTEmail {
                     HelpMessage = "The SmtpServer parameter is required when not set in the ```$PSEmailServer` preference variable or the ADT config under the `Email.Defaults.SmtpServer` property. This parameter specified the name of the SMTP server that sends the email message."
                 }
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.SmtpServer or $PSEmailServer' }
-                [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpaceAttribute]::new()
+                [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpaceAttribute]::new()
             )
         ))
 
@@ -116,7 +116,7 @@ function Send-ADTEmail {
                 }
                 [System.Management.Automation.AliasAttribute]::new('ComputerName')
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.To' }
-                [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpaceAttribute]::new()
+                [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpaceAttribute]::new()
             )
         ))
 

@@ -3,7 +3,7 @@ function Import-ADTEmail {
     param (
         [Parameter(ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, Position = 0)]
         [PSDefaultValue(Help = '(Get-ADTConfig).Email.ExportPath')]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpace()]
         [ValidateScript({
             if ([String]::IsNullOrWhiteSpace($_)) {
                 $PSCmdlet.ThrowTerminatingError((New-ADTValidateScriptErrorRecord -ParameterName ExportPath -ProvidedValue $_ -ExceptionMessage 'The specified input was null or an empty string.'))

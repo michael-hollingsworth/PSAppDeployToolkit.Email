@@ -8,7 +8,7 @@ function Initialize-ADTSessionProperty {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, Position = 0)]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpace()]
         [String]$Name,
 
         [Parameter(Mandatory = $true, Position = 1)]

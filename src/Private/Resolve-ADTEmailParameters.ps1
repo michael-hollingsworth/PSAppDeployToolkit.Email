@@ -2,7 +2,7 @@ function Resolve-ADTEmailParameters {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, Position = 0)]
-        [PSAppDeployToolkit.Foundation.ValidateNotNullOrWhiteSpace()]
+        [PSAppDeployToolkit.Attributes.ValidateNotNullOrWhiteSpace()]
         [System.Management.Automation.PSCmdlet]$Cmdlet
     )
 
