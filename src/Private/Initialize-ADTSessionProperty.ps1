@@ -21,7 +21,6 @@ function Add-ADTSessionProperty {
     )
 
     begin {
-        # Initialize function.
         Initialize-ADTFunction -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState
 
         $adtSession = Get-ADTSession
@@ -31,15 +30,12 @@ function Add-ADTSessionProperty {
                 Write-ADTLogEntry -Message "Adding [$Name] property to the current ADT session."
                 Add-Member -InputObject $adtSession -MemberType NoteProperty -Name $Name -Value $Value -Force:(!!$Force)
             } catch {
-                # Re-writing the ErrorRecord with Write-Error ensures the correct PositionMessage is used.
                 Write-Error -ErrorRecord $_
             }
         } catch {
-            # Process the caught error, log it and throw depending on the specified ErrorAction.
             Invoke-ADTFunctionErrorHandler -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState -ErrorRecord $_
         }
     } end {
-        # Finalize function.
         Complete-ADTFunction -Cmdlet $PSCmdlet
     }
 }
