@@ -9,5 +9,5 @@ function Initialize-ADTAdditionalLogFilesProperty {
     param (
     )
 
-    Initialize-ADTSessionProperty -Name 'AdditionalLogFiles' -Value ([System.Collections.Generic.List[String]]::new())
+    Add-ADTSessionProperty -Name 'AdditionalLogFiles' -Value ([System.Collections.Generic.List[String]]::new())
 }

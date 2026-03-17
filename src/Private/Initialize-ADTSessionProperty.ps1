@@ -4,7 +4,7 @@
 .EXAMPLE
     Initialize-ADTSessionProperty -Name 'DeferredEmails -Value ([System.Collections.Generic.List[Hashtable]]::new())
 #>
-function Initialize-ADTSessionProperty {
+function Add-ADTSessionProperty {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true, Position = 0)]
@@ -14,7 +14,10 @@ function Initialize-ADTSessionProperty {
         [Parameter(Mandatory = $true, Position = 1)]
         [AllowEmptyCollection()]
         [AllowEmptyString()]
-        $Value
+        $Value,
+
+        [Parameter()]
+        [Switch]$Force
     )
 
     begin {
@@ -25,12 +28,8 @@ function Initialize-ADTSessionProperty {
     } process {
         try {
             try {
-                if ($adtSession.PSObject.Properties.Name.Contains($Name)) {
-                    return
-                }
-
                 Write-ADTLogEntry -Message "Adding [$Name] property to the current ADT session."
-                Add-Member -InputObject $adtSession -MemberType NoteProperty -Name $Name -Value $Value
+                Add-Member -InputObject $adtSession -MemberType NoteProperty -Name $Name -Value $Value -Force:(!!$Force)
             } catch {
                 # Re-writing the ErrorRecord with Write-Error ensures the correct PositionMessage is used.
                 Write-Error -ErrorRecord $_

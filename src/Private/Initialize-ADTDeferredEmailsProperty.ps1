@@ -9,5 +9,5 @@ function Initialize-ADTDeferredEmailsProperty {
     param (
     )
 
-    Initialize-ADTSessionProperty -Name 'DeferredEmails' -Value ([System.Collections.Generic.List[Hashtable]]::new())
+    Add-ADTSessionProperty -Name 'DeferredEmails' -Value ([System.Collections.Generic.List[Hashtable]]::new())
 }
