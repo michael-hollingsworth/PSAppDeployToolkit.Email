@@ -45,7 +45,7 @@ function Confirm-ADTEmailConfig {
 
                     # If the export path is a folder add the child path of 'ExportedEmails.xml'
                     if ($adtConfig.Email.ContainsKey('ExportPath') -and (Test-Path -LiteralPath $adtConfig.Email.ExportPath -PathType Container)) {
-                        Write-ADTLogEntry -Message "The config property [Email.ExportPath] is the path of a directory. Changing export path from [$($adtConfig.Email.ExportPath)] to [[$($adtConfig.Email.ExportPath)]\ExportedEmails.xml]" -Severity Warning
+                        Write-ADTLogEntry -Message "The config property [Email.ExportPath] is the path of a directory. Changing export path from [$($adtConfig.Email.ExportPath)] to [$($adtConfig.Email.ExportPath)\ExportedEmails.xml]" -Severity Warning
                         $adtConfig.Email.ExportPath = Join-Path -Path $adtConfig.Email.ExportPath -ChildPath 'ExportedEmails.xml'
                     }
                 }
