@@ -41,10 +41,10 @@
 
         # Where to export emails that failed to send
         ## This is also the default path where emails are imported/exported from when using the Import-ADTEmail and Export-ADTEmail functions.
-        ExportPath = '$envTemp\DeferedEmails.xml'
+        ExportPath = '$env:Temp\DeferedEmails.xml'
 
         # Same as TempPath but used when ExportPath is False.
-        ExportPathNoAdminRights = '$envTemp\DeferedEmails.xml'
+        ExportPathNoAdminRights = '$env:Temp\DeferedEmails.xml'
 
         # Whether or not to send emails that have been exported by scripts that have run in the past
         SendExportedEmails = $true
