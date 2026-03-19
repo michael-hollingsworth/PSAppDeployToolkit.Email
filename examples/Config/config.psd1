@@ -22,7 +22,7 @@
             Cc = @()
 
             # The email address to send emails from when the -From parameter isn't used with `Send-Email`.
-            From = 'Deploy-$InstallTitle@MyDomain.com'
+            From = 'Deploy-$($InstallTitle -replace "/s+")@MyDomain.com'
 
             # Priority to send emails with. Valid values are members of the [System.Net.Mail.MailPriority] enum; Normal, Low, High
             Priority = 'High'
@@ -30,14 +30,13 @@
             # List of email addresses to send emails to when the -To parameter isn't used with `Send-Email`.
             To = @()
 
-            # SMTP client properties
-            ##
+            # Specify whether the SmtpClient uses Secure Sockets Layer (SSL) to encrypt the connection to the SMTP server.
             EnableSsl = $false
 
-            ## SMTP port to send emails on
+            # Specify the port used for SMTP transactions.
             Port = 25
 
-            ## Address of SMTP server to route emails through
+            # Specify the name or IP address of the host used for SMTP transactions.
             SmtpServer = 'smtp.MyDomain.com'
 
             ## Whether or not to use the credentials of the calling user.
@@ -53,14 +52,14 @@
         ## If `Send-Email` fails to send an email and the -Defer
         ExportOnFailureToSend = $true
 
-        # Where to export emails that failed to send
+        # Specify the default location to export emails that failed to send.
         ## This is also the default path where emails are imported/exported from when using the Import-ADTEmail and Export-ADTEmail functions.
         ExportPath = '$env:Temp\DeferedEmails.xml'
 
         # Same as TempPath but used when ExportPath is False.
         ExportPathNoAdminRights = '$env:Temp\DeferedEmails.xml'
 
-        # Whether or not to send emails that have been exported by scripts that have run in the past
+        # Specify whether or not to send emails that have been exported by scripts that have run in the past
         SendExportedEmails = $true
     }
 
