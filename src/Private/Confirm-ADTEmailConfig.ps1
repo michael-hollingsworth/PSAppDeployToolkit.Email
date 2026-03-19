@@ -14,6 +14,15 @@ function Confirm-ADTEmailConfig {
                     return
                 }
 
+                [Hashtable]$emailConfig = Remove-ADTHashtableNullOrEmptyValues -Hashtable $adtConfig.Email -Recurse
+
+                if (-not $emailConfig.Keys) {
+                    $adtConfig.Remove('Email')
+                    return
+                }
+
+                $adtConfig.Email = $emailConfig
+
                 Confirm-ADTConfig -Config $adtConfig -ConfigTemplate @{
                     Email = @{
                         Defaults = @{
