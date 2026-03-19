@@ -33,7 +33,7 @@ function Send-ADTEmailOnErrorExit {
                     return
                 }
 
-                if (($null -ne [System.Management.Automation.PSTypeName]::new('ExitCode').Type) -and ($exitCode -in ([Enum]::GetValues([ExitCode]).value__))) {
+                if (($exitCodeType = [System.Management.Automation.PSTypeName]::new('ExitCode').Type) -and $exitCodeType.IsEnum -and ($exitCode -in ([Enum]::GetValues($exitCodeType).value__))) {
                     return
                 }
 
