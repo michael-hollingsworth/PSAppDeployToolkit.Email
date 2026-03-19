@@ -26,6 +26,7 @@ function Resolve-ADTEmailParameters {
 
         if ($Cmdlet.MyInvocation.BoundParameters.ContainsKey('Attachment')) {
             $attachments.AddRange($Cmdlet.MyInvocation.BoundParameters.Attachment)
+            $Cmdlet.MyInvocation.BoundParameters.Remove('Attachment')
         }
 
         if ($Cmdlet.MyInvocation.BoundParameters['IncludeLogs'] -and $adtSession) {
@@ -41,22 +42,18 @@ function Resolve-ADTEmailParameters {
         }
 
         # Only include attachments that exist
-        [String[]]$attachmentsToSend = foreach ($path in $attachments) {
-            if (Test-Path -LiteralPath $path -PathType Leaf) {
-                $path
+        foreach ($path in $attachments) {
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+                $attachments.Remove($path)
             }
         }
 
         # If none of the attachment paths provided are valid, remove the parameter.
-        if (-not $attachmentsToSend.Count) {
-            if ($Cmdlet.MyInvocation.BoundParameters.ContainsKey('Attachment')) {
-                $Cmdlet.MyInvocation.BoundParameters.Remove('Attachment')
-            }
-
+        if (-not $attachments.Count) {
             return
         }
 
         # Don't include duplicate attachments
-        $Cmdlet.MyInvocation.BoundParameters['Attachment'] = $attachmentsToSend | Select-Object -Unique
+        $Cmdlet.MyInvocation.BoundParameters.Add('Attachment', ($attachments | Select-Object -Unique))
     }
 }
