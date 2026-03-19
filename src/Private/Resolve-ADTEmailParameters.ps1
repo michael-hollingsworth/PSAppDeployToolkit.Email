@@ -24,36 +24,26 @@ function Resolve-ADTEmailParameters {
 
         [System.Collections.Generic.List[String]]$attachments = [System.Collections.Generic.List[String]]::new()
 
-        if ($Cmdlet.MyInvocation.BoundParameters.ContainsKey('Attachment')) {
-            $attachments.AddRange($Cmdlet.MyInvocation.BoundParameters.Attachment)
-            $Cmdlet.MyInvocation.BoundParameters.Remove('Attachment')
+        if ($Cmdlet.MyInvocation.BoundParameters.ContainsKey('Attachments')) {
+            $attachments.AddRange($Cmdlet.MyInvocation.BoundParameters.Attachments)
+            $Cmdlet.MyInvocation.BoundParameters.Remove('Attachments')
         }
 
         if ($Cmdlet.MyInvocation.BoundParameters['IncludeLogs'] -and $adtSession) {
-            if ((-not [String]::IsNullOrWhiteSpace($adtSession.LogPath)) -and (-not [String]::IsNullOrWhiteSpace($adtSession.LogName)) -and ($logPath = Join-Path -Path $adtSession.LogPath -ChildPath $adtSession.LogName)) {
+            if ((-not [String]::IsNullOrWhiteSpace($adtSession.LogPath)) -and (-not [String]::IsNullOrWhiteSpace($adtSession.LogName)) -and ($logPath = Join-Path -Path $adtSession.LogPath -ChildPath $adtSession.LogName) -and (Test-Path -LiteralPath $logPath -PathType Leaf)) {
                 $attachments.Add($logPath)
             }
 
             foreach ($path in $adtSession.AdditionalLogFiles) {
-                if (-not [String]::IsNullOrWhiteSpace($path)) {
+                if ((-not [String]::IsNullOrWhiteSpace($path)) -and (Test-Path -LiteralPath $path -PathType Leaf)) {
                     $attachments.Add($path)
                 }
             }
         }
 
-        # Only include attachments that exist
-        foreach ($path in $attachments) {
-            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
-                $attachments.Remove($path)
-            }
-        }
-
-        # If none of the attachment paths provided are valid, remove the parameter.
         if (-not $attachments.Count) {
-            return
+            # Don't include duplicate attachments
+            $Cmdlet.MyInvocation.BoundParameters.Add('Attachments', ($attachments | Select-Object -Unique))
         }
-
-        # Don't include duplicate attachments
-        $Cmdlet.MyInvocation.BoundParameters.Add('Attachment', ($attachments | Select-Object -Unique))
     }
 }
