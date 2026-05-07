@@ -29,11 +29,13 @@ function Send-ADTEmailOnErrorExit {
                     return
                 }
 
-                if ($adtSession.PSObject.Properties.Name.Contains('ScriptSuccessExitCodes') -and ($exitCode -in $adtSession.ScriptSuccessExitCodes)) {
+                # Custom property added to ADT sessions for the purpose of defining custom non-failure return codes (not tied to AppSuccessExitCodes and AppRebootExitCodes, due to their specialized use in other PSADT functions)
+                if ($adtSession.psobject.Properties.Name.Contains('ScriptSuccessExitCodes') -and ($exitCode -in $adtSession.ScriptSuccessExitCodes)) {
                     return
                 }
 
-                if (($exitCodeType = [System.Management.Automation.PSTypeName]::new('ExitCode').Type) -and $exitCodeType.IsEnum -and ($exitCode -in ([Enum]::GetValues($exitCodeType).value__))) {
+                # Skip if the exit code provided is from the custom [ExitCode] enum, defined in the Invoke-AppDeployToolkit.ps1 script.
+                if (Get-PSCallStack | & { process { if ($_.Command -eq 'Close-ADTSession' ) { return $_ } } } | Select-Object -First 1 | ForEach-Object { $_.InvocationInfo.Line -match '-ExitCode \(\[ExitCode\]::\w+\)' }) {
                     return
                 }
 
