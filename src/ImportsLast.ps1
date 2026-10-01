@@ -18,11 +18,11 @@ try {
     # Initialize session properties if a session already exists
     if (Test-ADTSessionActive) {
         $adtSession = Get-ADTSession
-    
+
         if (-not $adtSession.PSObject.Properties.Name.Contains('DeferredEmails')) {
             Initialize-ADTDeferredEmailsProperty
         }
-    
+
         if (-not $adtSession.PSObject.Properties.Name.Contains('AdditionalLogFiles')) {
             Initialize-ADTAdditionalLogFilesProperty
         }
