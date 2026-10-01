@@ -46,13 +46,13 @@ function Send-ADTEmail {
         [Alias('BodyAsHtml', 'BAH')]
         [Switch]$IsBodyHtml,
 
+        [Parameter()]
         [Switch]$Defer
     )
 
     dynamicparam {
-        Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
-        $adtConfig = Get-ADTConfig
-        [Boolean]$configContainsEmailDefaults = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults')
+        $adtConfig = if (Test-ADTModuleInitialized) { Get-ADTConfig }
+        [Boolean]$configContainsEmailDefaults = ($adtConfig -and $adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults'))
 
         [System.Management.Automation.RuntimeDefinedParameterDictionary]$paramDictionary = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
 

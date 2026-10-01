@@ -27,15 +27,13 @@ function Import-ADTEmail {
     )
 
     dynamicparam {
-        Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
-        $adtConfig = Get-ADTConfig
-
+        $adtConfig = if (Test-ADTModuleInitialized) { Get-ADTConfig }
         [System.Management.Automation.RuntimeDefinedParameterDictionary]$paramDictionary = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
 
         $paramDictionary.Add('LiteralPath', [System.Management.Automation.RuntimeDefinedParameter]::new(
             'LiteralPath', [String], $(
                 [System.Management.Automation.ParameterAttribute]@{
-                    Mandatory = (-not ($adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('LiteralPath')))
+                    Mandatory = ((-not $adtConfig) -or (-not ($adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('LiteralPath'))))
                     HelpMessage = 'The LiteralPath parameter is required when not set in the ADT config under the Email.ExportPath property. This parameter specifies the path to import emails from when calling Import-ADTEmail.'
                 }
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.ExportPath' }

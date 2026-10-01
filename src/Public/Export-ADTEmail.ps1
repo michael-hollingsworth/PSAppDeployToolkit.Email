@@ -52,10 +52,8 @@ function Export-ADTEmail {
     )
 
     dynamicparam {
-        Initialize-ADTModuleIfUninitialized -Cmdlet $PSCmdlet
-        $adtConfig = Get-ADTConfig
-        [Boolean]$configContainsEmailDefaults = $adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults')
-
+        $adtConfig = if (Test-ADTModuleInitialized) { Get-ADTConfig }
+        [Boolean]$configContainsEmailDefaults = ($adtConfig -and $adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults'))
         [System.Management.Automation.RuntimeDefinedParameterDictionary]$paramDictionary = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
 
         $paramDictionary.Add('Attachments', [System.Management.Automation.RuntimeDefinedParameter]::new(
@@ -88,7 +86,7 @@ function Export-ADTEmail {
         $paramDictionary.Add('ExportPath', [System.Management.Automation.RuntimeDefinedParameter]::new(
             'ExportPath', [String], $(
                 [System.Management.Automation.ParameterAttribute]@{
-                    Mandatory = (-not ($adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('ExportPath')))
+                    Mandatory = ((-not $adtConfig) -or (-not ($adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('ExportPath'))))
                     HelpMessage = 'The ExportPath parameter is required when not set in the ADT config under the Email.ExportPath property. This parameter specifies the path to export emails to when calling Export-ADTEmail.'
                 }
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.ExportPath' }
