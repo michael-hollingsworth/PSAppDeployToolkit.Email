@@ -43,7 +43,7 @@ function Resolve-ADTEmailParameters {
 
         if (-not $attachments.Count) {
             # Don't include duplicate attachments
-            $Cmdlet.MyInvocation.BoundParameters.Add('Attachments', ($attachments | Select-Object -Unique))
+            $Cmdlet.MyInvocation.BoundParameters.Add('Attachments', ($attachments | Select-ADTUniqueObject))
         }
     }
 }
