@@ -109,7 +109,7 @@ function Send-ADTEmail {
                 [System.Management.Automation.ParameterAttribute]@{
                     Mandatory = (-not ($configContainsEmailDefaults -and $adtConfig.Email.Defaults.ContainsKey('To')))
                     ValueFromPipelineByPropertyName = $true
-                    HelpMessage = "The To parameter is required when not set in the ADT config under the Email.Defaults.To property. This parameter specifies the recipient's email address. Enter names (optional) and the email address, such as `Name <someone@fabrikam.com>`."
+                    HelpMessage = "The To parameter is required when not set in the ADT config under the Email.Defaults.To property. This parameter specifies the recipient's email address. Enter names (optional) and the email address, such as `Name <someone@fabrikam.com>`. When this parameter is specified, the CC and BCC values are not auto-populated from the config."
                 }
                 [System.Management.Automation.AliasAttribute]::new('ComputerName')
                 [PSDefaultValue]@{ Help = '(Get-ADTConfig).Email.Defaults.To' }

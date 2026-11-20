@@ -1,5 +1,14 @@
 @{
     Email = @{
+        # Default properties auto populate the parameters of `Send-ADTEmail`, when they aren't provided.
+        ## These properties support variable expansion. Variables which aren't escaped (eg. $unescaped) are expanded when the config is initially loaded. PSADT does not allow subexpressions (eg. $($adtSession.InstallName)) in config properties that are expanded during the module's initialization.
+        ## Variables which are escaped (eg. `$escaped) are expanded at the time `Send-ADTEmail` is called. Escaped subexpressions are allowed (eg. `$(`$adtSession.InstallName)).
+        ## Only the following variables are available for expansion when they are escaped:
+        ##     - Properties of the current ADT Session (i.e., `$(`$adtSession.<PROPERTY>))
+        ##     - Properties of the ADT config (i.e., `$(`$adtConfig.<PROPERTY>))
+        ##     - Environment variables (i.e., `$env:<VARIABLE>)
+        ##     - Global variables (i.e., `$global:<VARIABLE>)
+        ##     - Variables made available via `Export-ADTEnvironmentTableToSessionState`
         Defaults = @{
             # List of email addresses to BCC emails to when the -Bcc parameter isn't used with `Send-Email`.
             Bcc = @()
@@ -8,7 +17,7 @@
             Cc = @()
 
             # The email address to send emails from when the -From parameter isn't used with `Send-Email`.
-            From = 'Deploy-$($InstallTitle -replace "/s+")@MyDomain.com'
+            From = 'Deploy-`$(`$adtSession.InstallName)@MyDomain.com'
 
             # Priority to send emails with. Valid values are members of the [System.Net.Mail.MailPriority] enum; Normal, Low, High
             Priority = 'High'

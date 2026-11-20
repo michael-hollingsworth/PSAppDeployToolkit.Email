@@ -11,9 +11,19 @@ function Resolve-ADTEmailParameters {
         $adtSession = if (Test-ADTSessionActive) { Get-ADTSession }
     } process {
         if ($adtConfig -and $adtConfig.ContainsKey('Email') -and $adtConfig.Email.ContainsKey('Defaults')) {
-            foreach ($property in $adtConfig.Email.Defaults.Keys) {
+            Export-ADTEnvironmentTableToSessionState -SessionState $PSCmdlet.SessionState
+
+            # Don't auto-populate the CC and BCC values if -To is specified
+            $configProperties = $adtConfig.Email.Defaults.Keys
+            if ($Cmdlet.MyInvocation.BoundParameters.ContainsKey('To')) {
+                $configProperties = $configProperties | & { process { if ($_ -notin @('To', 'CC', 'BCC')) { return $_ } } }
+            }
+
+            foreach ($property in $configProperties) {
                 if (-not $Cmdlet.MyInvocation.BoundParameters.ContainsKey($property)) {
-                    $Cmdlet.MyInvocation.BoundParameters.Add($property, $adtConfig.Email.Defaults.$property)
+                    # Expand config strings using the current ADT Session's properties.
+                    ## This is primarily used to dynamically set the From property based on the script name/application being deployed.
+                    $Cmdlet.MyInvocation.BoundParameters.Add($property, $PSCmdlet.SessionState.InvokeCommand.ExpandString($adtConfig.Email.Defaults.$property))
                 }
             }
         }
