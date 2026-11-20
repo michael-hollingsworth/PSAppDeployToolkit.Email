@@ -44,10 +44,7 @@ function Send-ADTEmail {
 
         [Parameter(ValueFromPipelineByPropertyName = $true)]
         [Alias('BodyAsHtml', 'BAH')]
-        [Switch]$IsBodyHtml,
-
-        [Parameter()]
-        [Switch]$Defer
+        [Switch]$IsBodyHtml
     )
 
     dynamicparam {
@@ -120,6 +117,10 @@ function Send-ADTEmail {
             )
         ))
 
+        if (Test-ADTSessionActive) {
+            $paramDictionary.Add('Defer', [System.Management.Automation.RuntimeDefinedParameter]::new('Defer', [System.Management.Automation.SwitchParameter], [System.Management.Automation.ParameterAttribute]::new()))
+        }
+
         return $paramDictionary
     }
 
@@ -187,22 +188,33 @@ function Send-ADTEmail {
                 Write-Error -ErrorRecord $_
             }
         } catch {
-            $adtConfig = Get-ADTConfig
-            if (-not $adtConfig.ContainsKey('Email')) {
-                Write-ADTLogEntry -Message "Failed to send email. `r`n$(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
-            } elseif ($adtConfig.Email.ContainsKey('DeferOnFailureToSend') -and $adtConfig.Email.DeferOnFailureToSend) {
-                if ($adtSession.InstallPhase -ne 'Finalization') {
-                    Write-ADTLogEntry -Message "Failed to send email. Deferring email send. `r`n $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
-                    $adtSession.DeferredEmails.Add($PSBoundParameters)
-                } else {
-                    Write-ADTLogEntry -Message "Failed to send email. `r`n$(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
-                }
-            } elseif ($adtConfig.Email.ContainsKey('ExportOnFailureToSend') -and $adtConfig.Email.ExportOnFailureToSend) {
-                Write-ADTLogEntry -Message "Failed to send email. Exporting email. `r`n $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
-                Export-ADTEmail @PSBoundParameters
+            # Emails can only be deferred/exported when an ADT session is active.
+            ## Also, if the module isn't initialized, the config hasn't been loaded or modified. If the config hasn't been modified, it doesn't contain the email properties that specify whether or not to defer/export on failure to send.
+            if (-not ((Test-ADTSessionActive) -and ($adtConfig = Get-ADTConfig) -and $adtConfig.ContainsKey('Email'))) {
+                Invoke-ADTFunctionErrorHandler -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState -ErrorRecord $_ -Message 'Failed to send email.'
+                return
             }
 
-            Invoke-ADTFunctionErrorHandler -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState -ErrorRecord $_ -Silent
+            #TODO: Validate that the first if branch is necessary
+            #TODO: Rewrite this to ensure that the flow is:
+                # Defer if not in finalization and defer is allowed
+                # If in finialization and export is allowed, export
+            if ($adtConfig.Email.ContainsKey('DeferOnFailureToSend') -and $adtConfig.Email.DeferOnFailureToSend) {
+                # Prevent infinate loop when an email fails to send
+                if (($adtSession = Get-ADTSession) -and ($adtSession.InstallPhase -ne 'Finalization')) {
+                    Write-ADTLogEntry -Message "Failed to send email. Deferring email send. `r`n $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
+                    $adtSession.DeferredEmails.Add($PSBoundParameters)
+                    return
+                }
+            }
+
+            if ($adtConfig.Email.ContainsKey('ExportOnFailureToSend') -and $adtConfig.Email.ExportOnFailureToSend) {
+                Write-ADTLogEntry -Message "Failed to send email. Exporting email. `r`n $(Resolve-ADTErrorRecord -ErrorRecord $_)" -Severity Error
+                Export-ADTEmail @PSBoundParameters
+                return
+            }
+
+            Invoke-ADTFunctionErrorHandler -Cmdlet $PSCmdlet -SessionState $ExecutionContext.SessionState -ErrorRecord $_ -Message 'Failed to send email.'
         }
     } end {
         Complete-ADTFunction -Cmdlet $PSCmdlet
