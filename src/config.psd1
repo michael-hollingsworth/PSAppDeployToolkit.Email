@@ -39,6 +39,13 @@
             UseDefaultCredentials = $false
         }
 
+        # Whether or not to send an email when a deployment session closes with a non-success exit code.
+        ## Closing an ADT session with a user-defined `[ExitCode]` enum will NOT result in an email being sent.
+        ## The theory is that if you are exiting with a custom exit code, you are also providing specialized logic to handle those scenarios, with more detailed emails than just an error record.
+        ## This also applies to the custom `ScriptSuccessExitCodes` deployment session property. If a deployment session closes with one of the exit codes specified in `$adtSession.ScriptSuccessExitCodes`, an email will not be automatically sent.
+        ## For example, `Close-ADTSession -ExitCode ([ExitCode]::ApplicationNotFound)` will not automatically send an email but `Close-ADTSession -ExitCode 69012` will.
+        SendEmailOnErrorExit = $true
+
         # Whether or not to defer emails (send them when the current ADT session closes) when `Send-Email` fails to send them.
         DeferOnFailureToSend = $true
 

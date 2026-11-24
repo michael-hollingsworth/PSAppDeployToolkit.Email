@@ -8,6 +8,10 @@ function Send-ADTEmailOnErrorExit {
 
         $adtSession = Get-ADTSession
         $adtConfig = Get-ADTConfig
+
+        if ($adtConfig.ContainsKey('Email') -and $adtConfig.Email.Containskey('SendEmailOnErrorExit') -and ($false -eq $adtConfig.Email.SendEmailOnErrorExit)) {
+            return
+        }
     } process {
         try {
             try {
